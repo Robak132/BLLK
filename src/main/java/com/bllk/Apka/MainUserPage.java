@@ -16,6 +16,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -102,14 +104,7 @@ public class MainUserPage {
 
         accounts = connection.getUserAccounts(login.getLogin(), login.getPasswordHash());
 
-        updateContacts();
-        updateAccounts();
-        updateTransactionTable();
-        updateAccountsSummary();
-        updateContactsSummary();
-        updateCreditsBalance();
-        updateInvestmentsSummary();
-        updateCreditsSummary();
+        updateAll();
 
         transfer_sendMoneyButton.addActionListener(e -> makeTransaction());
         logOutButton.addActionListener(e -> {
@@ -135,6 +130,12 @@ public class MainUserPage {
         createCreditButton.addActionListener(e -> addCreditDialog());
         changeLoginButton.addActionListener(e -> changeLoginDialog());
         changePasswordButton.addActionListener(e -> changePasswordDialog());
+        logoLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                updateAll();
+            }
+        });
     }
 
     void createAccountDialog() {
@@ -455,6 +456,16 @@ public class MainUserPage {
         return String.valueOf(value);
     }
 
+    private void updateAll() {
+        updateContacts();
+        updateAccounts();
+        updateTransactionTable();
+        updateAccountsSummary();
+        updateContactsSummary();
+        updateCreditsBalance();
+        updateInvestmentsSummary();
+        updateCreditsSummary();
+    }
     private void updateFontsAndColors() {
         Colors colors = new Colors();
         Fonts fonts = new Fonts();
