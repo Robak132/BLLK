@@ -15,6 +15,7 @@ public class TransactionPanel extends JPanel {
     private String amount;
     private final String currency;
     private final String sign;
+    private final String signText;
     char type;
     Color color;
 
@@ -33,17 +34,22 @@ public class TransactionPanel extends JPanel {
             case 0:
                 sign = "-";
                 color = Colors.getRed();
+                signText = "Przelew wychodzący";
                 break;
             case 1:
                 sign = "+";
                 color = Colors.getGreen();
+                signText = "Przelew przychodzący";
+
                 break;
             case 2:
                 sign = "⮂";
                 color = Colors.getBlue();
+                signText = "Przelew własny - wymiana waluty";
                 break;
             default:
                 sign = "?";
+                signText = "?";
         }
         amount = String.format("%.2f", _unformattedAmount / 100.0);
 
@@ -86,6 +92,7 @@ public class TransactionPanel extends JPanel {
         c.gridwidth = 1;
 
         // Adding subcomponents
+        signLabel.setToolTipText(signText);
         signLabel.setForeground(color);
         signLabel.setFont(Fonts.getAlternativeFont().deriveFont(40f));
         signLabel.setHorizontalAlignment(JLabel.CENTER);
