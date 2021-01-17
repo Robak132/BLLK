@@ -626,6 +626,7 @@ public class MainUserPage {
     public void updateAccountsSummary() {
         accountsSummaryPanel.removeAll();
         int column = 0, row = 1, counter = 1, accountsCount = accounts.size();
+        boolean canBeDeleted = true;
 
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(10, 10, 10, 10);
@@ -649,6 +650,14 @@ public class MainUserPage {
             accountsSummaryPanel.add(noAccountInformation, c);
         }
 
+        Map<Integer, JSONObject> credits = connection.getCredits(login.getLogin(), login.getPasswordHash());
+        List<String> currencies_used = new ArrayList<>();
+
+        for (Map.Entry<Integer, JSONObject> credit : credits.entrySet()) {
+            JSONObject values = credit.getValue();
+            currencies_used.add(values.getString("currencyid"));
+        }
+
         c.gridwidth = 2;
         for (Map.Entry<Integer, JSONObject> account : accounts.entrySet()) {
             String currencyID = account.getValue().getString("currencyid");
@@ -656,8 +665,10 @@ public class MainUserPage {
             int balance = account.getValue().getInt("value");
             String formattedBalance = String.format("%.2f", balance / 100.0);
 
+            canBeDeleted = !currencies_used.contains(currencyID);
+
             AccountPanel accountPanel = new AccountPanel(getContactIfPossible(account.getKey()),
-                    "" + account.getKey(), formattedBalance, currencyName, this);
+                    "" + account.getKey(), formattedBalance, currencyName, this, canBeDeleted);
 
             if (counter == accountsCount - 1) {
                 if (accountsCount % 3 == 2) column = 1;

@@ -13,7 +13,8 @@ public class AccountPanel extends JPanel {
     private final String account_number;
     MainUserPage page;
 
-    public AccountPanel(String _account_name, String _account_number, String _balance, String _currency, MainUserPage _page) {
+    public AccountPanel(String _account_name, String _account_number, String _balance, String _currency,
+                        MainUserPage _page, boolean isEligibleToBeDeleted) {
         super();
         page = _page;
         account_number = _account_number;
@@ -39,8 +40,6 @@ public class AccountPanel extends JPanel {
         deleteAccountButton.setFont(Fonts.getStandardFont());
         renameAccountButton.setFont(Fonts.getStandardFont());
 
-        deleteAccountButton.setEnabled(false);
-
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -65,10 +64,17 @@ public class AccountPanel extends JPanel {
         c.insets = new Insets(0, 0, 0, 0);
         c.gridy = 1;
         c.gridx = 0;
-        c.gridwidth = 2;
+
+        c.gridwidth = 1;
         this.add(renameAccountButton, c);
-        //c.gridx = 1;
-        //this.add(deleteAccountButton, c);
+
+        if (!isEligibleToBeDeleted) {
+            deleteAccountButton.setEnabled(false);
+            deleteAccountButton.setToolTipText("Nie można usunąć. Te konto jest wymagane do spłaty kredytu.");
+        }
+
+        c.gridx = 1;
+        this.add(deleteAccountButton, c);
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
@@ -114,6 +120,9 @@ public class AccountPanel extends JPanel {
     }
 
     private void deleteAccount() {
+        JOptionPane.showMessageDialog(null,
+                "Potrzebuje implementacji po stronie serwera.",
+                "Uwaga", JOptionPane.WARNING_MESSAGE);
         System.out.println("Not implemented yet.");
     }
 
