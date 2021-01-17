@@ -39,7 +39,7 @@ public class TransactionPanel extends JPanel {
                 color = Color.green;
                 break;
             case 2:
-                sign = ">";
+                sign = "⮂";
                 color = Color.magenta;
                 break;
             default:
@@ -87,7 +87,7 @@ public class TransactionPanel extends JPanel {
 
         // Adding subcomponents
         signLabel.setForeground(color);
-        signLabel.setFont(Fonts.getHeaderFont().deriveFont(40f));
+        signLabel.setFont(Fonts.getAlternativeFont().deriveFont(40f));
         signLabel.setHorizontalAlignment(JLabel.CENTER);
         signLabel.setPreferredSize(new Dimension(80, 50));
         c.gridy = 0;

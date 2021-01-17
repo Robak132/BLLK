@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Fonts {
-    private static Font radikal, adagio_slab;
+    private static Font radikal, adagio_slab, veranda;
 
     public Fonts() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         radikal = loadFont("radikalwut-bold.otf");
         adagio_slab = loadFont("adagio_slab-regular.otf");
+        veranda = new Font("Veranda", Font.PLAIN, 14);
         ge.registerFont(radikal);
         ge.registerFont(adagio_slab);
     }
@@ -38,5 +39,8 @@ public class Fonts {
     }
     public static Font getLogoFont() {
         return radikal.deriveFont(48f);
+    }
+    public static Font getAlternativeFont() {
+        return veranda.deriveFont(14f);
     }
 }
