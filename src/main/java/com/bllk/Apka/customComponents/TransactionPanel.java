@@ -32,15 +32,15 @@ public class TransactionPanel extends JPanel {
         switch (type) {
             case 0:
                 sign = "-";
-                color = Color.red;
+                color = Colors.getRed();
                 break;
             case 1:
                 sign = "+";
-                color = Color.green;
+                color = Colors.getGreen();
                 break;
             case 2:
                 sign = "⮂";
-                color = Color.magenta;
+                color = Colors.getBlue();
                 break;
             default:
                 sign = "?";
