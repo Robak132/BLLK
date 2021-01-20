@@ -14,24 +14,24 @@ import java.util.Map;
 
 public class CreditPanel extends JPanel {
     MainUserPage page;
-    JSONObject inv;
+    JSONObject credit;
 
-    public CreditPanel(MainUserPage _page, int _id, JSONObject _inv) {
+    public CreditPanel(MainUserPage _page, int _id, JSONObject _credit) {
         super();
         page = _page;
-        inv = _inv;
+        credit = _credit;
 
-        JLabel nameLabel = new JLabel(inv.getString("name"));
-        JLabel valueLabel = new JLabel("" + inv.getDouble("value") / 100);
-        JLabel currencyLabel = new JLabel(MainUserPage.getCurrencies().get(inv.getString("currencyid")));
-        JLabel interestLabel = new JLabel(inv.getString("interest"));
-        JLabel commissionLabel = new JLabel(inv.getString("commission"));
-        JLabel RRSOLabel = new JLabel(inv.getString("rrso"));
-        JLabel dateCreatedLabel = new JLabel(inv.getString("datecreated"));
-        JLabel dateEndedLabel = new JLabel(inv.getString("dateended"));
-        JLabel remainingLabel = new JLabel(inv.getString("remaining"));
-        JLabel monthlyLabel = new JLabel(inv.getString("monthly"));
-        JLabel monthsRemainingLabel = new JLabel(inv.getString("monthsremaining"));
+        JLabel nameLabel = new JLabel(credit.getString("name"));
+        JLabel valueLabel = new JLabel("" + credit.getDouble("value") / 100);
+        JLabel currencyLabel = new JLabel(MainUserPage.getCurrencies().get(credit.getString("currencyid")));
+        JLabel interestLabel = new JLabel(credit.getString("interest"));
+        JLabel commissionLabel = new JLabel(credit.getString("commission"));
+        JLabel RRSOLabel = new JLabel(credit.getString("rrso"));
+        JLabel dateCreatedLabel = new JLabel(credit.getString("datecreated"));
+        JLabel dateEndedLabel = new JLabel(credit.getString("dateended"));
+        JLabel remainingLabel = new JLabel(credit.getString("remaining"));
+        JLabel monthlyLabel = new JLabel(credit.getString("monthly"));
+        JLabel monthsRemainingLabel = new JLabel(credit.getString("monthsremaining"));
         JButton payInstallmentButton = new JButton("Spłać ratę kredytu");
 
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -77,12 +77,12 @@ public class CreditPanel extends JPanel {
 
         payInstallmentButton.addActionListener(e -> {
             int accountID = payInstallmentDialog();
-            System.out.println(accountID);
-            MainUserPage.getConnection().updateCredit(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), _id, accountID);
-            page.updateCreditsSummary();
-            page.updateAccounts();
+            if (accountID >= 0) {
+                MainUserPage.getConnection().updateCredit(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), _id, accountID);
+                page.updateCreditsSummary();
+                page.updateAccounts();
+            }
         });
-
         payInstallmentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.add(payInstallmentButton);
     }
@@ -90,10 +90,12 @@ public class CreditPanel extends JPanel {
     int payInstallmentDialog() {
         JComboBox<String> accountBox = new JComboBox<>();
         List<Integer> accounts_to_select = new ArrayList<>();
+        List<Long> values_to_select = new ArrayList<>();
         for (Map.Entry<Integer, JSONObject> account : MainUserPage.getAccounts().entrySet()) {
-            if (account.getValue().getInt("currencyid") == inv.getInt("currencyid")) {
+            if (account.getValue().getInt("currencyid") == credit.getInt("currencyid")) {
                 accountBox.addItem(String.format("%s (%.2f %s)", page.getContactIfPossible(account.getKey()), account.getValue().getDouble("value") / 100, MainUserPage.getCurrencies().get(account.getValue().getString("currencyid"))));
                 accounts_to_select.add(account.getKey());
+                values_to_select.add(account.getValue().getLong("value"));
             }
         }
 
@@ -103,7 +105,10 @@ public class CreditPanel extends JPanel {
 
         int option = JOptionPane.showConfirmDialog(null, message, "Spłać ratę kredytu", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            return accounts_to_select.get(accountBox.getSelectedIndex());
+            if (values_to_select.get(accountBox.getSelectedIndex()) >= credit.getLong("monthly"))
+                return accounts_to_select.get(accountBox.getSelectedIndex());
+            else
+                JOptionPane.showMessageDialog(null,"Nie posiadasz wystarczająco pieniędzy.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
         }
         return -1;
     }

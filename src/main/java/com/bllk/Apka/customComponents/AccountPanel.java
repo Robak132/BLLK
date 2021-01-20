@@ -120,10 +120,12 @@ public class AccountPanel extends JPanel {
     }
 
     private void deleteAccount() {
-        JOptionPane.showMessageDialog(null,
-                "Potrzebuje implementacji po stronie serwera.",
-                "Uwaga", JOptionPane.WARNING_MESSAGE);
-        System.out.println("Not implemented yet.");
+        MainUserPage.getConnection().removeAccount(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), Integer.parseInt(account_number));
+        page.updateContacts();
+        page.updateAccounts();
+        page.updateInvestmentsSummary();
+        page.updateAccountsSummary();
+        page.updateMoney();
     }
 
     private void renameAccount() {
@@ -144,7 +146,7 @@ public class AccountPanel extends JPanel {
                         "Pole nazwy nie może być puste.",
                         "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
             } else {
-                MainUserPage.getConnection().createOrUpdateContact(page.getLogin().getLogin(), page.getLogin().getPasswordHash(), new_name_string, Integer.parseInt(account_number));
+                MainUserPage.getConnection().createOrUpdateContact(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), new_name_string, Integer.parseInt(account_number));
             }
         }
     }

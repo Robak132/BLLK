@@ -419,6 +419,13 @@ public class Server extends HttpServlet {
                         data.removeInvestment(client.getID(), investmentid, accountid);
                     }
                 }
+                if (atributes[0].equals("login") && atributes[1].equals("removeaccount")) {
+                    String login = request.getParameter("login");
+                    String password = request.getParameter("passwordhash");
+                    int accountid = Integer.parseInt(request.getParameter("accountid"));
+
+                    data.removeAccount(login, password, accountid);
+                }
                 if (atributes[0].equals("login") && atributes[1].equals("payinstallment")) {
                     String login = request.getParameter("login");
                     String password = request.getParameter("passwordhash");
@@ -436,7 +443,6 @@ public class Server extends HttpServlet {
                     String newlogin = request.getParameter("newlogin");
                     data.updateLogin(login, password, newlogin);
                 }
-
                 break;
         }
     }
