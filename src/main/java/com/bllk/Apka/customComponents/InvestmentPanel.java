@@ -6,6 +6,7 @@ import com.bllk.Apka.resourceHandlers.Fonts;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InvestmentPanel extends JPanel {
+    String investmentName;
     MainUserPage page;
     JSONObject inv;
 
@@ -20,63 +22,113 @@ public class InvestmentPanel extends JPanel {
         super();
         page = _page;
         inv = _inv;
+        investmentName = inv.getString("name");
 
-        JLabel nameLabel = new JLabel(inv.getString("name"));
         JLabel valueLabel = new JLabel("" + inv.getDouble("value") / 100);
         JLabel currencyLabel = new JLabel(MainUserPage.getCurrencies().get(inv.getString("currencyid")));
         JLabel profitLabel = new JLabel(inv.getString("profit"));
         JLabel yearProfitLabel = new JLabel(inv.getString("yearprofit"));
         JLabel capPeriodLabel = new JLabel(inv.getString("capperiod"));
         JLabel dateCreatedLabel = new JLabel(inv.getString("datecreated"));
+
         JButton closeInvestmentButton = new JButton("Zamknij lokatę");
 
-        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        for (JLabel jLabel : Arrays.asList(nameLabel, yearProfitLabel, capPeriodLabel, dateCreatedLabel,
+        for (JLabel jLabel : Arrays.asList(yearProfitLabel, capPeriodLabel, dateCreatedLabel,
                 valueLabel, currencyLabel, profitLabel)) {
             jLabel.setForeground(Colors.getBrightTextColor());
             jLabel.setFont(Fonts.getStandardFont());
+            jLabel.setPreferredSize(new Dimension(10, 25));
         }
         closeInvestmentButton.setFont(Fonts.getStandardFont());
-        dateCreatedLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        valueLabel.setHorizontalAlignment(JLabel.RIGHT);
+        currencyLabel.setHorizontalAlignment(JLabel.LEFT);
+
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
         this.setBackground(Colors.getGrey());
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(BorderFactory.createLineBorder(Colors.getOrange(), 3, true));
-        this.setMaximumSize(new Dimension(200, 200));
-        this.setPreferredSize(new Dimension(150, -1));
+        this.setPreferredSize(new Dimension(200, 150));
 
-        this.add(nameLabel);
-        JPanel p1 = new JPanel();
-        p1.setBackground(Colors.getGrey());
-        p1.add(valueLabel);
-        p1.add(currencyLabel);
-        this.add(p1);
-        JPanel p2 = new JPanel();
-        p2.setBackground(Colors.getGrey());
-        p2.add(profitLabel);
-        p2.add(yearProfitLabel);
-        p2.add(capPeriodLabel);
-        this.add(p2);
-        this.add(dateCreatedLabel);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.gridwidth = 1;
 
+        c.gridy = 0;
+        c.gridx = 0;
+        c.insets = new Insets(0, 0, 0, 2);
+        this.add(valueLabel, c);
+        c.gridx = 1;
+        c.insets = new Insets(0, 2, 0, 0);
+        this.add(currencyLabel, c);
+
+
+        c.insets = new Insets(0, 0, 0, 0);
+        c.gridy = 1;
+
+        c.gridx = 0;
+        this.add(profitLabel, c);
+        c.gridx = 1;
+        this.add(yearProfitLabel, c);
+
+        c.gridwidth = 2;
+        c.gridx = 0;
+        c.gridy = 2;
+        this.add(capPeriodLabel, c);
+        c.gridy = 3;
+        this.add(dateCreatedLabel, c);
+        c.gridy = 4;
+        this.add(closeInvestmentButton, c);
+
+
+        if (inv.has("dateended")) {
+            JLabel dateEndedLabel = new JLabel(inv.getString("dateended"));
+            dateEndedLabel.setForeground(Colors.getBrightTextColor());
+            this.add(dateEndedLabel);
+        }
+
+
+
+        this.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
+                investmentName,
+                TitledBorder.CENTER,
+                TitledBorder.DEFAULT_POSITION,
+                Fonts.getStandardFont(),
+                Colors.getBrightTextColor()
+        ));
         closeInvestmentButton.addActionListener(e -> {
-            int accountid = removeInvestmentDialog();
-            System.out.println(accountid);
+            int accountID = removeInvestmentDialog();
+            System.out.println(accountID);
             MainUserPage.getConnection().removeInvestment(MainUserPage.getLogin().getLogin(),
-                    MainUserPage.getLogin().getPasswordHash(), _id, accountid);
+                    MainUserPage.getLogin().getPasswordHash(), _id, accountID);
             page.updateInvestmentsSummary();
             page.updateAccounts();
         });
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                setBorder(BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(Colors.getBlue(), 3, true),
+                        investmentName,
+                        TitledBorder.CENTER,
+                        TitledBorder.DEFAULT_POSITION,
+                        Fonts.getStandardFont(),
+                        Colors.getBrightTextColor()
+                ));
+            }
 
-        if (inv.has("dateended")) {
-            JLabel dateendedLabel = new JLabel(inv.getString("dateended"));
-            dateendedLabel.setForeground(Colors.getBrightTextColor());
-            dateendedLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            this.add(dateendedLabel);
-        }
-        closeInvestmentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.add(closeInvestmentButton);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                setBorder(BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
+                        investmentName,
+                        TitledBorder.CENTER,
+                        TitledBorder.DEFAULT_POSITION,
+                        Fonts.getStandardFont(),
+                        Colors.getBrightTextColor()
+                ));
+            }
+        });
     }
 
     int removeInvestmentDialog() {

@@ -50,6 +50,7 @@ public class StartWindow {
     private JLabel register_streetLabel, register_numberLabel, register_cityLabel, register_postcodeLabel, register_countryLabel;
     private JLabel register_loginHeaderLabel, register_personalHeaderLabel;
     private JPanel registerTab;
+    private JScrollPane registerScrollPanel;
 
     private String login, password, repeatedPassword;
     private String name, surname, gender;
@@ -62,8 +63,14 @@ public class StartWindow {
     public static void main(String[] args) {
         frame = new JFrame("BLLK");
         connection = new ClientServerConnection();
-        if (!connection.checkConnection())
+        if (!connection.checkConnection()) {
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "Server is not responding.\nThe app is going to shut down.",
+                    "Cannot connect to the server",
+                    JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
+        }
         startingPanel = new StartWindow().mainPanel;
         frame.setContentPane(startingPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -172,6 +179,8 @@ public class StartWindow {
 
     public StartWindow() {
         mainPanel.updateUI();
+        new Fonts();
+        new Colors();
         updateFontsAndColors();
         makeErrorLabelsInvisible();
 
@@ -196,16 +205,18 @@ public class StartWindow {
         mainTabbedPane.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (register_yearsComboBox.getItemCount() == 0) {
-                    LocalDateTime now = LocalDateTime.now();
-                    year = now.getYear();
-                    month = now.getMonthValue();
-                    day = now.getDayOfMonth();
-                    register_yearsComboBox.removeAllItems();
-                    fillYearComboBox(LocalDateTime.now());
-                }
-                if (register_countriesComboBox.getItemCount() == 0) {
-                    fillCountriesComboBox();
+                if (mainTabbedPane.getSelectedIndex() == 1) {
+                    if (register_yearsComboBox.getItemCount() == 0) {
+                        LocalDateTime now = LocalDateTime.now();
+                        year = now.getYear();
+                        month = now.getMonthValue();
+                        day = now.getDayOfMonth();
+                        register_yearsComboBox.removeAllItems();
+                        fillYearComboBox(LocalDateTime.now());
+                    }
+                    if (register_countriesComboBox.getItemCount() == 0) {
+                        fillCountriesComboBox();
+                    }
                 }
             }
         });
@@ -290,9 +301,6 @@ public class StartWindow {
     }
 
     private void updateFontsAndColors() {
-        Colors colors = new Colors();
-        Fonts fonts = new Fonts();
-
         Font standardFont = Fonts.getStandardFont();
         Font headerFont = Fonts.getHeaderFont();
         Font logoFont = Fonts.getLogoFont();

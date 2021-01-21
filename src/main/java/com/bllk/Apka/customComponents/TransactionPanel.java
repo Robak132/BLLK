@@ -15,6 +15,7 @@ public class TransactionPanel extends JPanel {
     private String amount;
     private final String currency;
     private final String sign;
+    private final String signText;
     char type;
     Color color;
 
@@ -32,18 +33,23 @@ public class TransactionPanel extends JPanel {
         switch (type) {
             case 0:
                 sign = "-";
-                color = Color.red;
+                color = Colors.getRed();
+                signText = "Przelew wychodzący";
                 break;
             case 1:
                 sign = "+";
-                color = Color.green;
+                color = Colors.getGreen();
+                signText = "Przelew przychodzący";
+
                 break;
             case 2:
-                sign = ">";
-                color = Color.magenta;
+                sign = "⮂";
+                color = Colors.getBlue();
+                signText = "Przelew własny - wymiana waluty";
                 break;
             default:
                 sign = "?";
+                signText = "?";
         }
         amount = String.format("%.2f", _unformattedAmount / 100.0);
 
@@ -63,7 +69,7 @@ public class TransactionPanel extends JPanel {
         JLabel titleLabel = new JLabel(title);
         JLabel amountLabel = new JLabel(amount);
         JLabel currencyLabel = new JLabel(currency);
-        JLabel arrowLabel = new JLabel("->");
+        JLabel arrowLabel = new JLabel("⭢");
 
         // Colors and fonts
         for (JLabel label : Arrays.asList(signLabel, senderLabel, receiverLabel, dateLabel, titleLabel, amountLabel, arrowLabel)) {
@@ -86,8 +92,9 @@ public class TransactionPanel extends JPanel {
         c.gridwidth = 1;
 
         // Adding subcomponents
+        signLabel.setToolTipText(signText);
         signLabel.setForeground(color);
-        signLabel.setFont(Fonts.getHeaderFont().deriveFont(40f));
+        signLabel.setFont(Fonts.getAlternativeFont().deriveFont(40f));
         signLabel.setHorizontalAlignment(JLabel.CENTER);
         signLabel.setPreferredSize(new Dimension(80, 50));
         c.gridy = 0;
@@ -105,6 +112,7 @@ public class TransactionPanel extends JPanel {
         this.add(titleLabel, c);
 
         //dateLabel.setPreferredSize(new Dimension(100, 50));
+        dateLabel.setForeground(Colors.getBrightGrey());
         c.weightx = 1;
         c.gridx = 4;
         c.gridwidth = 2;
@@ -139,6 +147,7 @@ public class TransactionPanel extends JPanel {
         this.add(senderLabel, c);
 
         arrowLabel.setHorizontalAlignment(JLabel.CENTER);
+        arrowLabel.setFont(Fonts.getAlternativeFont());
         c.weightx = 0.1;
         c.gridx = 3;
         c.gridwidth = 1;

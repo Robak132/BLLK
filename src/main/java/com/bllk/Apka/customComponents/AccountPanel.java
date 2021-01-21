@@ -13,7 +13,8 @@ public class AccountPanel extends JPanel {
     private final String account_number;
     MainUserPage page;
 
-    public AccountPanel(String _account_name, String _account_number, String _balance, String _currency, MainUserPage _page) {
+    public AccountPanel(String _account_name, String _account_number, String _balance, String _currency,
+                        MainUserPage _page, boolean isEligibleToBeDeleted) {
         super();
         page = _page;
         account_number = _account_number;
@@ -39,8 +40,6 @@ public class AccountPanel extends JPanel {
         deleteAccountButton.setFont(Fonts.getStandardFont());
         renameAccountButton.setFont(Fonts.getStandardFont());
 
-        deleteAccountButton.setEnabled(false);
-
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -65,10 +64,17 @@ public class AccountPanel extends JPanel {
         c.insets = new Insets(0, 0, 0, 0);
         c.gridy = 1;
         c.gridx = 0;
-        c.gridwidth = 2;
+
+        c.gridwidth = 1;
         this.add(renameAccountButton, c);
-        //c.gridx = 1;
-        //this.add(deleteAccountButton, c);
+
+        if (!isEligibleToBeDeleted) {
+            deleteAccountButton.setEnabled(false);
+            deleteAccountButton.setToolTipText("Nie można usunąć. Te konto jest wymagane do spłaty kredytu.");
+        }
+
+        c.gridx = 1;
+        this.add(deleteAccountButton, c);
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
@@ -114,7 +120,12 @@ public class AccountPanel extends JPanel {
     }
 
     private void deleteAccount() {
-        System.out.println("Not implemented yet.");
+        MainUserPage.getConnection().removeAccount(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), Integer.parseInt(account_number));
+        page.updateContacts();
+        page.updateAccounts();
+        page.updateInvestmentsSummary();
+        page.updateAccountsSummary();
+        page.updateMoney();
     }
 
     private void renameAccount() {
@@ -135,7 +146,7 @@ public class AccountPanel extends JPanel {
                         "Pole nazwy nie może być puste.",
                         "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
             } else {
-                MainUserPage.getConnection().createOrUpdateContact(page.getLogin().getLogin(), page.getLogin().getPasswordHash(), new_name_string, Integer.parseInt(account_number));
+                MainUserPage.getConnection().createOrUpdateContact(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), new_name_string, Integer.parseInt(account_number));
             }
         }
     }

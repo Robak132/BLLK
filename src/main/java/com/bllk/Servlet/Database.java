@@ -284,7 +284,7 @@ public class Database {
         }
         return account;
     }
-      public long getTotalSavings(String login, String hashed_password, int currencyid) {
+    public long getTotalSavings(String login, String hashed_password, int currencyid) {
         Long savings = null;
         try {
             Session session = factory.openSession();
@@ -527,7 +527,41 @@ public class Database {
             refresh();
         }
     }
+    public void addCredit(Integer ownerid, String name, long value, double interest, double commission, long months, int accountid) {
+        try {
+            Session session = factory.openSession();
+            Transaction tx = session.beginTransaction();
 
+            int id = 1;
+            Query query = session.createQuery("FROM Account WHERE id=:accountid");
+            query.setParameter("accountid", accountid);
+
+            if (query.list().size() >= 1) {
+                Account account = (Account) query.list().get(0);
+                account.setValue(account.getValue()+value);
+                session.update(account);
+
+                int currencyid = account.getCurrencyID();
+
+                query = session.createSQLQuery("SELECT MAX(CREDIT_ID) FROM CREDITS");
+                BigDecimal idbig = ((BigDecimal) query.list().get(0));
+                if (idbig != null)
+                    id = idbig.intValue() + 1;
+
+                query = session.createSQLQuery("SELECT add_months(SYSDATE, :param) FROM DUAL");
+                Date enddate = (Date) query.setParameter("param", months).list().get(0);
+
+                Credit credit = new Credit(id, ownerid, name, value, currencyid, interest, commission, enddate);
+                session.save(credit);
+            }
+            tx.commit();
+            session.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            factory.close();
+            refresh();
+        }
+    }
     public void addClient(String _name, String _surname, String _date, String _gender, String _street, String _num, String _city,
                           String _postcode, String _country_name, String _login, String _password) {
 
@@ -559,6 +593,7 @@ public class Database {
             refresh();
         }
     }
+
     public void removeContact(int ownerid, int accountid) {
         try {
             Session session = factory.openSession();
@@ -612,33 +647,21 @@ public class Database {
             refresh();
         }
     }
-    public void addCredit(Integer ownerid, String name, long value, double interest, double commission, long months, int accountid) {
+    public void removeAccount(String login, String hashed_password, int accountid) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
-            int id = 1;
-            Query query = session.createQuery("FROM Account WHERE id=:accountid");
+            Query query = session.createQuery("SELECT a FROM Account a, Login l, Client c WHERE l.id=c.login_id AND l.login=:login AND l.passwordhash=:password AND a.id=:accountid");
+            query.setParameter("login", login);
+            query.setParameter("password", hashed_password);
             query.setParameter("accountid", accountid);
 
             if (query.list().size() >= 1) {
                 Account account = (Account) query.list().get(0);
-                account.setValue(account.getValue()+value);
-                session.update(account);
-
-                int currencyid = account.getCurrencyID();
-
-                query = session.createSQLQuery("SELECT MAX(CREDIT_ID) FROM CREDITS");
-                BigDecimal idbig = ((BigDecimal) query.list().get(0));
-                if (idbig != null)
-                    id = idbig.intValue() + 1;
-
-                query = session.createSQLQuery("SELECT add_months(SYSDATE, :param) FROM DUAL");
-                Date enddate = (Date) query.setParameter("param", months).list().get(0);
-
-                Credit credit = new Credit(id, ownerid, name, value, currencyid, interest, commission, enddate);
-                session.save(credit);
+                session.delete(account);
             }
+
             tx.commit();
             session.close();
         } catch (Exception ex) {
