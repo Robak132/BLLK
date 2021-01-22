@@ -222,7 +222,7 @@ public class MainUserPage {
                                 integerCapPeroid, accountsToSelect.get(accountBox.getSelectedIndex()));
                         updateInvestmentsSummary();
                         updateAccounts();
-                        JOptionPane.showMessageDialog(null,"Operacja powiodła się.","Sukces", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null,"Operacja powiodła się.","Sukces", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,"Błędna wartość.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
@@ -322,7 +322,7 @@ public class MainUserPage {
                 );
                 updateCreditsSummary();
                 updateAccounts();
-                JOptionPane.showMessageDialog(null, "Operacja powiodła się.", "Sukces", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Operacja powiodła się.", "Sukces", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null,"Błędna wartość liczbowa jednego z parametrów.\nSprawdź, czy wprowadziłeś kwotę kredytu.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
             } catch (WrongCreditNameException e) {
@@ -351,7 +351,7 @@ public class MainUserPage {
                 JOptionPane.showMessageDialog(null,"Login jest zajęty.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
             else {
                 if (connection.updateLogin(login.getLogin(), login.getPasswordHash(), new_name_string)) {
-                    JOptionPane.showMessageDialog(null,"Zmiana loginu powiodła się.","Sukces", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null,"Zmiana loginu powiodła się.","Sukces", JOptionPane.INFORMATION_MESSAGE);
                     loginField.setText(new_name_string);
                 }
                 else
@@ -386,7 +386,7 @@ public class MainUserPage {
             else {
                 String hashedPassword = BCrypt.hashpw(newPasswordString, BCrypt.gensalt(12));
                 connection.updatePassword(login.getLogin(), hashedPassword);
-                JOptionPane.showMessageDialog(null,"Zmiana hasła powiodła się.","Sukces", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Zmiana hasła powiodła się.","Sukces", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
@@ -642,7 +642,10 @@ public class MainUserPage {
             user_currencies.add(account.getValue().getInt("currencyid"));
         }
 
+        tabbedPane.setEnabledAt(1, transfer_accountSelectBox.getItemCount() != 0);
         tabbedPane.setEnabledAt(2, transfer_accountSelectBox.getItemCount() != 0);
+        tabbedPane.setEnabledAt(3, transfer_accountSelectBox.getItemCount() != 0);
+        tabbedPane.setEnabledAt(4, transfer_accountSelectBox.getItemCount() != 0);
         updateMoney();
         updateAccountsSummary();
     }
