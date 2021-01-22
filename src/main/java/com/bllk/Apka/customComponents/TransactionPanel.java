@@ -69,7 +69,7 @@ public class TransactionPanel extends JPanel {
         JLabel titleLabel = new JLabel(title);
         JLabel amountLabel = new JLabel(amount);
         JLabel currencyLabel = new JLabel(currency);
-        JLabel arrowLabel = new JLabel("->");
+        JLabel arrowLabel = new JLabel("⭢");
 
         // Colors and fonts
         for (JLabel label : Arrays.asList(signLabel, senderLabel, receiverLabel, dateLabel, titleLabel, amountLabel, arrowLabel)) {
@@ -112,6 +112,7 @@ public class TransactionPanel extends JPanel {
         this.add(titleLabel, c);
 
         //dateLabel.setPreferredSize(new Dimension(100, 50));
+        dateLabel.setForeground(Colors.getBrightGrey());
         c.weightx = 1;
         c.gridx = 4;
         c.gridwidth = 2;
@@ -146,6 +147,7 @@ public class TransactionPanel extends JPanel {
         this.add(senderLabel, c);
 
         arrowLabel.setHorizontalAlignment(JLabel.CENTER);
+        arrowLabel.setFont(Fonts.getAlternativeFont());
         c.weightx = 0.1;
         c.gridx = 3;
         c.gridwidth = 1;

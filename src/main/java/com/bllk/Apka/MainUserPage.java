@@ -89,18 +89,16 @@ public class MainUserPage {
         idLabel.setText("Numer klienta: " + client.getID());
         loginField.setText(login.getLogin());
         currencies = connection.getCurrencies();
+        accounts = connection.getUserAccounts(login.getLogin(), login.getPasswordHash());
 
         accountsSummaryPanel.setLayout(new GridBagLayout());
         historyPanel.setLayout(new BoxLayout(historyPanel, BoxLayout.Y_AXIS));
         contactsSummary.setLayout(new BoxLayout(contactsSummary, BoxLayout.Y_AXIS));
-        investmentsSummaryPanel.setLayout(new BoxLayout(investmentsSummaryPanel, BoxLayout.Y_AXIS));
-        creditsSummaryPanel.setLayout(new BoxLayout(creditsSummaryPanel, BoxLayout.Y_AXIS));
+        investmentsSummaryPanel.setLayout(new GridBagLayout());
+        creditsSummaryPanel.setLayout(new GridBagLayout());
+
         updateFontsAndColors();
-
-        accounts = connection.getUserAccounts(login.getLogin(), login.getPasswordHash());
-
         updateAll();
-
         transfer_sendMoneyButton.addActionListener(e -> makeTransaction());
         logOutButton.addActionListener(e -> {
             StartWindow.startingPanel.setSize(currentPanel.getSize());
@@ -301,19 +299,37 @@ public class MainUserPage {
 
         int option = JOptionPane.showConfirmDialog(null, message, "Nowy kredyt", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            connection.createCredit(
-                    login.getLogin(),
-                    login.getPasswordHash(),
-                    name.getText(),
-                    Math.round(Double.parseDouble(value.getText().replace(",",".")) * 100),
-                    interestRate.getValue()/1000.0,
-                    commission.getValue()/1000.0,
-                    Integer.parseInt((String) months.getValue()),
-                    accountsToSelect.get(accountBox.getSelectedIndex())
-            );
-            updateCreditsSummary();
-            updateAccounts();
-            JOptionPane.showMessageDialog(null,"Operacja powiodła się.","Sukces", JOptionPane.ERROR_MESSAGE);
+            class WrongCreditNameException extends Exception
+            { public WrongCreditNameException() {} }
+            class WrongCreditAmountException extends Exception
+            { public WrongCreditAmountException() {} }
+
+            try {
+                if (name.getText().length() < 1 || name.getText().length() > 100)
+                    throw new WrongCreditNameException();
+                long amount = Math.round(Double.parseDouble(value.getText().replace(",", ".")) * 100);
+                if (amount < 10000 || amount > 100000000)
+                    throw new WrongCreditAmountException();
+                connection.createCredit(
+                        login.getLogin(),
+                        login.getPasswordHash(),
+                        name.getText(),
+                        amount,
+                        interestRate.getValue() / 1000.0,
+                        commission.getValue() / 1000.0,
+                        Integer.parseInt((String) months.getValue()),
+                        accountsToSelect.get(accountBox.getSelectedIndex())
+                );
+                updateCreditsSummary();
+                updateAccounts();
+                JOptionPane.showMessageDialog(null, "Operacja powiodła się.", "Sukces", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,"Błędna wartość liczbowa jednego z parametrów.\nSprawdź, czy wprowadziłeś kwotę kredytu.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+            } catch (WrongCreditNameException e) {
+                JOptionPane.showMessageDialog(null,"Błąd w nazwie kredytu.\nNazwa powinna zawierać od 1 do 100 znaków.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+            } catch (WrongCreditAmountException e) {
+                JOptionPane.showMessageDialog(null,"Błąd kwoty kredytu.\nKwota kredytu powinna zawierać się od 100 do 1 000 000.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
     void changeLoginDialog() {
@@ -448,16 +464,16 @@ public class MainUserPage {
         return String.valueOf(value);
     }
 
+    /** Updates everything. */
     private void updateAll() {
         updateContacts();
         updateAccounts();
-        updateTransactionTable();
-        updateAccountsSummary();
         updateContactsSummary();
         updateCreditsBalance();
         updateInvestmentsSummary();
         updateCreditsSummary();
     }
+    /** Updates fonts of labels and sets backgrounds of fields. */
     private void updateFontsAndColors() {
         Font standardFont = Fonts.getStandardFont();
         Font headerFont = Fonts.getHeaderFont();
@@ -548,6 +564,9 @@ public class MainUserPage {
             financialProductsTabbedPane.setForeground(Colors.getOrange());
         }
     }
+    /** Updates contacts in transactions combobox.
+     *  Runs updateTransactionTable()
+     */
     public void updateContacts() {
         lock_combobox = true;
         contacts = connection.getContacts(login.getLogin(), login.getPasswordHash());
@@ -560,6 +579,7 @@ public class MainUserPage {
         updateTransactionTable();
         lock_combobox = false;
     }
+    /** Updates transaction table. */
     private void updateTransactionTable() {
         historyPanel.removeAll();
         //String[] columns = new String[] {"Od", "Do", "Data", "Tytuł", "Wartość", "Waluta"};
@@ -591,6 +611,7 @@ public class MainUserPage {
             historyPanel.add(new Box.Filler(new Dimension(1, 1), new Dimension(100, 1), new Dimension(600, 1)));
         }
     }
+    /** Updates money header in transaction screen. */
     public void updateMoney() {
         if (transfer_accountSelectBox.getItemCount() > 0) {
             activePayerAccount = connection.getAccount(login.getLogin(), login.getPasswordHash(), accountBoxUnformatted.get(transfer_accountSelectBox.getSelectedIndex()));
@@ -605,6 +626,9 @@ public class MainUserPage {
             }
         }
     }
+    /** Updates accounts in transaction combobox.
+     *  Runs updateMoney() and updateAccountsSummary()
+     */
     public void updateAccounts() {
         transfer_accountSelectBox.removeAllItems();
         accounts = connection.getUserAccounts(login.getLogin(), login.getPasswordHash());
@@ -629,15 +653,16 @@ public class MainUserPage {
 
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(10,10,10,10);
-        c.fill = GridBagConstraints.HORIZONTAL;
+        c.fill = GridBagConstraints.NONE;
         c.weightx = 1;
-        c.weighty = 1;
+        c.weighty = 0.1;
         c.gridwidth = 1;
 
         c.gridy = 0;
         if (accountsCount != 0) {
             for (int i = 0; i < 6; i++) {
                 JLabel nothing = new JLabel("");
+                nothing.setMaximumSize(new Dimension(1, 1));
                 c.gridx = i;
                 accountsSummaryPanel.add(nothing, c);
             }
@@ -648,6 +673,10 @@ public class MainUserPage {
             noAccountInformation.setForeground(Colors.getBrightTextColor());
             accountsSummaryPanel.add(noAccountInformation, c);
         }
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weighty = 1;
+
 
         Map<Integer, JSONObject> credits = connection.getCredits(login.getLogin(), login.getPasswordHash());
         Map<Integer, JSONObject> investments = connection.getInvestments(login.getLogin(), login.getPasswordHash());
@@ -690,7 +719,7 @@ public class MainUserPage {
             }
             accountsSummaryPanel.add(accountPanel, c);
         }
-        refreshFrame();
+        accountsSummaryPanel.updateUI();
     }
     private void updateContactsSummary() {
         contactsSummary.removeAll();
@@ -705,25 +734,85 @@ public class MainUserPage {
         }
     }
     public void updateInvestmentsSummary() {
-        investmentsSummaryPanel.removeAll();
         Map<Integer, JSONObject> investments = connection.getInvestments(login.getLogin(), login.getPasswordHash());
-
-        for (Map.Entry<Integer, JSONObject> investment: investments.entrySet()) {
-            InvestmentPanel investmentPanel = new InvestmentPanel(this, investment.getKey(), investment.getValue());
-            investmentsSummaryPanel.add(investmentPanel);
-        }
-        investmentsSummaryPanel.updateUI();
+        updateFinancialProductSummary(investmentsSummaryPanel, investments, (char) 0);
     }
     public void updateCreditsSummary() {
-        creditsSummaryPanel.removeAll();
         Map<Integer, JSONObject> credits = connection.getCredits(login.getLogin(), login.getPasswordHash());
 
-        for (Map.Entry<Integer, JSONObject> credit: credits.entrySet()) {
-            CreditPanel creditPanel = new CreditPanel(this, credit.getKey(), credit.getValue());
-            creditsSummaryPanel.add(creditPanel);
-        }
+        updateFinancialProductSummary(creditsSummaryPanel, credits, (char) 1);
         updateCreditsBalance();
-        creditsSummaryPanel.updateUI();
+    }
+    private void updateFinancialProductSummary(JPanel panelToUpdate, Map<Integer, JSONObject> mapOfProducts, char productType) {
+        int column = 0, row = 1, counter = 1, productsCount = mapOfProducts.size();
+        panelToUpdate.removeAll();
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(10,10,10,10);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0.1;
+        c.gridwidth = 1;
+
+        c.gridy = 0;
+
+        if (productsCount != 0) {
+            for (int i = 0; i < 4; i++) {
+                JLabel nothing = new JLabel("");
+                nothing.setMaximumSize(new Dimension(1, 1));
+                c.gridx = i;
+                panelToUpdate.add(nothing, c);
+            }
+        } else {
+            JLabel noAccountInformation;
+            c.gridx = 0;
+            if (productType == 0) {
+                noAccountInformation = new JLabel("Nie masz żadnej lokaty. Możesz dodać ją poniżej.");
+            } else if (productType == 1) {
+                noAccountInformation = new JLabel("Nie masz żadnego kredytu. Możesz dodać go poniżej.");
+            } else {
+                noAccountInformation = new JLabel("Nie masz żadnego produktu. Możesz dodać go poniżej.");
+            }
+            noAccountInformation.setFont(Fonts.getStandardFont());
+            noAccountInformation.setForeground(Colors.getBrightTextColor());
+            panelToUpdate.add(noAccountInformation, c);
+        }
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weighty = 1;
+        c.gridwidth = 2;
+
+
+        for (Map.Entry<Integer, JSONObject> product: mapOfProducts.entrySet()) {
+            c.gridx = column % 2;
+            c.gridy = row;
+
+            JPanel productPanel;
+
+            if (productType == 0) {
+                productPanel = new InvestmentPanel(this, product.getKey(), product.getValue());
+            } else if (productType == 1) {
+                productPanel = new CreditPanel(this, product.getKey(), product.getValue());
+            } else {
+                productPanel = new JPanel();
+                productPanel.add(new JLabel("Błąd."));
+            }
+
+            if (counter == productsCount) {
+                if (productsCount % 2 == 1) column = 1;
+            }
+
+            counter++;
+            c.gridx = column;
+            c.gridy = row;
+            column += 2;
+            if (column % 4 == 0) {
+                column = 0;
+                row++;
+            }
+            panelToUpdate.add(productPanel, c);
+        }
+        panelToUpdate.updateUI();
     }
     private void updateCreditsBalance() {
         if (transfer_accountSelectBox.getItemCount() > 0) {
@@ -733,11 +822,6 @@ public class MainUserPage {
 
             creditsBalance.setText(String.format("%.2f %s", credits_total / 100.0, active_currency_shortcut));
         }
-    }
-    private void refreshFrame() {
-        Dimension dimension = frame.getSize();
-        frame.setSize(dimension.width, dimension.height + 10);
-        frame.setSize(dimension);
     }
 
     public static ClientServerConnection getConnection() {

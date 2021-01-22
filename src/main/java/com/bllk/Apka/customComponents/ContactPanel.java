@@ -23,15 +23,7 @@ public class ContactPanel extends JPanel {
                 Colors.getBrightTextColor()
         ));
 
-        JLabel nameLabel = new JLabel(name);
-        JLabel targetIDLabel = new JLabel("" + targetID);
         JButton deleteButton = new JButton("Usuń");
-
-        nameLabel.setForeground(Colors.getBrightTextColor());
-        targetIDLabel.setForeground(Colors.getBrightTextColor());
-
-        nameLabel.setFont(Fonts.getStandardFont());
-        targetIDLabel.setFont(Fonts.getStandardFont());
         deleteButton.setFont(Fonts.getStandardFont());
 
         deleteButton.addActionListener(e -> {
@@ -40,8 +32,6 @@ public class ContactPanel extends JPanel {
             parent.remove(this);
             parent.updateUI();
         });
-        this.add(nameLabel);
-        this.add(targetIDLabel);
         this.add(deleteButton);
     }
 }
