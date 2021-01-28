@@ -1,4 +1,4 @@
-package com.bllk.Servlet.mapclasses;
+package com.bllk.Mapclasses;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

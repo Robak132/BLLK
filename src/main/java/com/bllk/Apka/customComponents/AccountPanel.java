@@ -9,19 +9,19 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class AccountPanel extends JPanel {
-    private String account_name;
-    private final String account_number;
+    private String accountName;
+    private final String accountNumber;
     MainUserPage page;
 
-    public AccountPanel(String _account_name, String _account_number, String _balance, String _currency,
+    public AccountPanel(String _accountName, String _accountNumber, String _balance, String _currency,
                         MainUserPage _page, boolean isEligibleToBeDeleted) {
         super();
         page = _page;
-        account_number = _account_number;
-        account_name = _account_name;
+        accountNumber = _accountNumber;
+        accountName = _accountName;
 
-        if (_account_name.equals(_account_number))
-            account_name = "Konto";
+        if (_accountName.equals(_accountNumber))
+            accountName = "Konto";
 
         JLabel balanceLabel = new JLabel(_balance);
         JLabel currencyLabel = new JLabel(_currency);
@@ -78,7 +78,7 @@ public class AccountPanel extends JPanel {
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
-                account_name + " (nr " + account_number + ")",
+                accountName + " (nr " + accountNumber + ")",
                 TitledBorder.CENTER,
                 TitledBorder.DEFAULT_POSITION,
                 Fonts.getStandardFont(),
@@ -89,18 +89,17 @@ public class AccountPanel extends JPanel {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 setBorder(BorderFactory.createTitledBorder(
                         BorderFactory.createLineBorder(Colors.getBlue(), 3, true),
-                        account_name + " (nr " + account_number + ")",
+                        accountName + " (nr " + accountNumber + ")",
                         TitledBorder.CENTER,
                         TitledBorder.DEFAULT_POSITION,
                         Fonts.getStandardFont(),
                         Colors.getBrightTextColor()
                 ));
             }
-
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 setBorder(BorderFactory.createTitledBorder(
                         BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
-                        account_name + " (nr " + account_number + ")",
+                        accountName + " (nr " + accountNumber + ")",
                         TitledBorder.CENTER,
                         TitledBorder.DEFAULT_POSITION,
                         Fonts.getStandardFont(),
@@ -108,45 +107,45 @@ public class AccountPanel extends JPanel {
                 ));
             }
         });
+
         deleteAccountButton.addActionListener(e -> deleteAccount());
-        renameAccountButton.addActionListener(e -> {
-            renameAccount();
+        renameAccountButton.addActionListener(e -> renameAccount());
+    }
+    private void deleteAccount() {
+        new Thread(() -> {
+            MainUserPage.getConnection().removeAccount(MainUserPage.getLogin().getLogin(),
+                MainUserPage.getLogin().getPasswordHash(), Integer.parseInt(accountNumber));
             page.updateContacts();
             page.updateAccounts();
-            page.updateInvestmentsSummary();
-            page.updateAccountsSummary();
-            page.updateMoney();
-        });
+        }).start();
     }
-
-    private void deleteAccount() {
-        MainUserPage.getConnection().removeAccount(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), Integer.parseInt(account_number));
-        page.updateContacts();
-        page.updateAccounts();
-        page.updateInvestmentsSummary();
-        page.updateAccountsSummary();
-        page.updateMoney();
-    }
-
     private void renameAccount() {
-        JTextField new_name = new JTextField();
-        String new_name_string;
+        JTextField newName = new JTextField();
+        String newNameString;
 
         Object[] message = {
-                "Chcesz zmienić nazwę konta '" + account_name + "'",
-                "Nowa nazwa:", new_name
+                "Chcesz zmienić nazwę konta '" + accountName + "'",
+                "Nowa nazwa:", newName
         };
 
         int option = JOptionPane.showConfirmDialog(null, message,
                 "Zmiana nazwy konta", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
-            new_name_string = new_name.getText();
-            if (new_name_string.isEmpty()) {
+            newNameString = newName.getText();
+            if (newNameString.isEmpty()) {
                 JOptionPane.showMessageDialog(null,
                         "Pole nazwy nie może być puste.",
                         "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
             } else {
-                MainUserPage.getConnection().createOrUpdateContact(MainUserPage.getLogin().getLogin(), MainUserPage.getLogin().getPasswordHash(), new_name_string, Integer.parseInt(account_number));
+                new Thread(() -> {
+                    MainUserPage.getConnection().createOrUpdateContact(MainUserPage.getLogin().getLogin(),
+                        MainUserPage.getLogin().getPasswordHash(), newNameString, Integer.parseInt(accountNumber));
+                    page.updateContacts();
+                    page.updateAccounts();
+                    page.updateInvestmentsSummary();
+                    page.updateAccountsSummary();
+                    page.updateMoney();
+                }).start();
             }
         }
     }

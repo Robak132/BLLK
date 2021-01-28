@@ -1,6 +1,6 @@
 package com.bllk.Servlet;
-import com.bllk.Servlet.mapclasses.*;
-import com.bllk.Servlet.mapclasses.Currency;
+import com.bllk.Mapclasses.*;
+import com.bllk.Mapclasses.Currency;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -56,14 +56,14 @@ public class Database {
         }
     }
 
-    public Client getClient(int loginid) {
+    public Client getClient(int loginID) {
         Client client = null;
 
         try {
             Session session = factory.openSession();
 
             Query query = session.createQuery("FROM Client WHERE login_id=:loginid");
-            query.setParameter("loginid", loginid);
+            query.setParameter("loginid", loginID);
             List list = query.list();
 
             if (list.size() >= 1)
@@ -77,14 +77,14 @@ public class Database {
         }
         return client;
     }
-    public String getSalt(String user_login) {
+    public String getSalt(String userLogin) {
         String salt = null;
 
         try {
             Session session = factory.openSession();
 
             Query query = session.createQuery("FROM Login WHERE login=:login");
-            query.setParameter("login", user_login);
+            query.setParameter("login", userLogin);
             if (query.list().size() >= 1) {
                 Login login = (Login) query.list().get(0);
                 String hash = login.getPasswordHash();
@@ -99,16 +99,16 @@ public class Database {
         }
         return salt;
     }
-    public boolean checkLogin(String user_login) {
-        boolean does_exist = false;
+    public boolean checkLogin(String userLogin) {
+        boolean doesExist = false;
 
         try {
             Session session = factory.openSession();
 
-            String hql = "FROM Login WHERE login='" + user_login + "'";
+            String hql = "FROM Login WHERE login='" + userLogin + "'";
             Query query = session.createQuery(hql);
             if (query.list().size() >= 1)
-                does_exist = true;
+                doesExist = true;
 
             session.close();
         } catch (Exception ex) {
@@ -116,7 +116,7 @@ public class Database {
             factory.close();
             refresh();
         }
-        return does_exist;
+        return doesExist;
     }
     public List getCountries() {
         List countries = null;
@@ -153,13 +153,13 @@ public class Database {
         }
         return currencies;
     }
-    public List getAccounts(String login, String hashed_password) {
+    public List getAccounts(String login, String hashedPassword) {
         List accounts = null;
         try {
             Session session = factory.openSession();
             Query query = session.createQuery("SELECT A FROM Account A, Client C, Login L WHERE C.id=A.owner_id AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
             query.setParameter("param", login);
-            query.setParameter("param2", hashed_password);
+            query.setParameter("param2", hashedPassword);
             accounts = query.list();
 
             session.close();
@@ -170,13 +170,13 @@ public class Database {
         }
         return accounts;
     }
-    public List getContacts(String login, String hashed_password) {
+    public List getContacts(String login, String hashedPassword) {
         List accounts = null;
         try {
             Session session = factory.openSession();
             Query query = session.createQuery("SELECT CN FROM Contact CN, Client C, Login L WHERE C.id=CN.ownerid AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
             query.setParameter("param", login);
-            query.setParameter("param2", hashed_password);
+            query.setParameter("param2", hashedPassword);
             accounts = query.list();
 
             session.close();
@@ -187,13 +187,13 @@ public class Database {
         }
         return accounts;
     }
-    public List getTransactions(String login, String hashed_password) {
+    public List getTransactions(String login, String hashedPassword) {
         List transactions = null;
         try {
             Session session = factory.openSession();
-            Query query = session.createQuery("SELECT DISTINCT T FROM TransactionRecord T, Account A, Client C, Login L WHERE (A.id=T.receiverid OR A.id=T.senderid) AND A.owner_id=C.id AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
+            Query query = session.createQuery("SELECT DISTINCT T FROM TransactionRecord T, Account A, Client C, Login L WHERE (A.id=T.receiverID OR A.id=T.senderID) AND A.owner_id=C.id AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
             query.setParameter("param", login);
-            query.setParameter("param2", hashed_password);
+            query.setParameter("param2", hashedPassword);
 
             if (query.list().size() >= 1)
                 transactions = query.list();
@@ -206,13 +206,13 @@ public class Database {
         }
         return transactions;
     }
-    public List getInvestments(String login, String hashed_password) {
+    public List getInvestments(String login, String hashedPassword) {
         List investments = null;
         try {
             Session session = factory.openSession();
             Query query = session.createQuery("SELECT I FROM Investment I, Client C, Login L WHERE I.ownerid=C.id AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
             query.setParameter("param", login);
-            query.setParameter("param2", hashed_password);
+            query.setParameter("param2", hashedPassword);
 
             if (query.list().size() >= 1)
                 investments = query.list();
@@ -225,13 +225,13 @@ public class Database {
         }
         return investments;
     }
-    public List getCredits(String login, String hashed_password) {
+    public List getCredits(String login, String hashedPassword) {
         List credits = null;
         try {
             Session session = factory.openSession();
             Query query = session.createQuery("SELECT Cr FROM Credit Cr, Client C, Login L WHERE Cr.ownerid=C.id AND L.id = C.login_id AND L.login =:param AND L.passwordhash =:param2");
             query.setParameter("param", login);
-            query.setParameter("param2", hashed_password);
+            query.setParameter("param2", hashedPassword);
 
             if (query.list().size() >= 1)
                 credits = query.list();
@@ -244,13 +244,13 @@ public class Database {
         }
         return credits;
     }
-    public Login getLogin(String login, String hashed_password) {
+    public Login getLogin(String login, String hashedPassword) {
         Login result = null;
 
         try {
             Session session = factory.openSession();
 
-            String hql = "FROM Login WHERE login='" + login + "' AND passwordhash='" + hashed_password + "'";
+            String hql = "FROM Login WHERE login='" + login + "' AND passwordhash='" + hashedPassword + "'";
             Query query = session.createQuery(hql);
             List list = query.list();
 
@@ -265,13 +265,13 @@ public class Database {
         }
         return result;
     }
-    public Account getAccount(int accountid) {
+    public Account getAccount(int accountID) {
         Account account = null;
         try {
             Session session = factory.openSession();
 
             Query query = session.createQuery("SELECT A FROM Account A where A.id=:param");
-            query.setParameter("param", accountid);
+            query.setParameter("param", accountID);
 
             if (query.list().size() >= 1)
                 account = (Account) query.list().get(0);
@@ -284,16 +284,16 @@ public class Database {
         }
         return account;
     }
-    public long getTotalSavings(String login, String hashed_password, int currencyid) {
+    public Long getTotalSavings(String login, String hashedPassword, int currencyID) {
         Long savings = null;
         try {
             Session session = factory.openSession();
             Query query = session.createSQLQuery("SELECT calculate_total_savings(CLIENT_ID, :currency) FROM CLIENTS C\n" +
                     "JOIN LOGINS L ON (L.LOGIN_ID=C.LOGIN_ID)\n" +
                     "WHERE L.LOGIN=:login AND L.PASSWORD_HASH=:password");
-            query.setParameter("currency", currencyid);
+            query.setParameter("currency", currencyID);
             query.setParameter("login", login);
-            query.setParameter("password", hashed_password);
+            query.setParameter("password", hashedPassword);
 
             if (query.list().size() >= 1)
                 savings = ((BigDecimal) query.list().get(0)).longValue();
@@ -305,16 +305,16 @@ public class Database {
         }
         return savings;
     }
-    public long getTotalCredits(String login, String hashed_password, int currencyid) {
+    public Long getTotalCredits(String login, String hashedPassword, int currencyID) {
         Long credits = null;
         try {
             Session session = factory.openSession();
             Query query = session.createSQLQuery("SELECT calculate_total_credits(CLIENT_ID, :currency) FROM CLIENTS C\n" +
                     "JOIN LOGINS L ON (L.LOGIN_ID=C.LOGIN_ID)\n" +
                     "WHERE L.LOGIN=:login AND L.PASSWORD_HASH=:password");
-            query.setParameter("currency", currencyid);
+            query.setParameter("currency", currencyID);
             query.setParameter("login", login);
-            query.setParameter("password", hashed_password);
+            query.setParameter("password", hashedPassword);
             if (query.list().size() >= 1)
                 credits = ((BigDecimal) query.list().get(0)).longValue();
             session.close();
@@ -326,30 +326,30 @@ public class Database {
         return credits;
     }
 
-    public void updateRemainingCredit(int ownerid, int creditid, int accountid) {
+    public void updateRemainingCredit(int ownerID, int creditID, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("FROM Credit WHERE ownerid=:ownerid AND id=:creditid");
-            query.setParameter("ownerid", ownerid);
-            query.setParameter("creditid", creditid);
+            query.setParameter("ownerid", ownerID);
+            query.setParameter("creditid", creditID);
 
             if (query.list().size() >= 1) {
                 Credit credit = (Credit) query.list().get(0);
 
                 query = session.createQuery("FROM Account WHERE id=:accountid");
-                query.setParameter("accountid", accountid);
+                query.setParameter("accountid", accountID);
 
                 if (query.list().size() >= 1) {
                     Account account = (Account) query.list().get(0);
                     account.setValue(account.getValue() - credit.getMonthly());
                     session.update(account);
-                    long new_remaining = credit.getRemaining() - credit.getMonthly();
-                    if (new_remaining <= 0) {
+                    long newRemaining = credit.getRemaining() - credit.getMonthly();
+                    if (newRemaining <= 0) {
                         session.delete(credit);
                     } else {
-                        credit.setRemaining(new_remaining);
+                        credit.setRemaining(newRemaining);
                         session.update(credit);
                     }
                 }
@@ -362,7 +362,7 @@ public class Database {
             refresh();
         }
     }
-    public void updatePassword(String _login, String _hashed_password) {
+    public void updatePassword(String _login, String _hashedPassword) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
@@ -372,7 +372,7 @@ public class Database {
 
             if (query.list().size() >= 1) {
                 Login login = (Login) query.list().get(0);
-                login.setPasswordHash(_hashed_password);
+                login.setPasswordHash(_hashedPassword);
                 session.update(login);
             }
 
@@ -384,18 +384,18 @@ public class Database {
             refresh();
         }
     }
-    public void updateLogin(String _login, String _hashed_password, String _newlogin) {
+    public void updateLogin(String _login, String _hashedPassword, String _newLogin) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("FROM Login WHERE login=:login AND passwordhash=:password");
             query.setParameter("login", _login);
-            query.setParameter("password", _hashed_password);
+            query.setParameter("password", _hashedPassword);
 
             if (query.list().size() >= 1) {
                 Login login = (Login) query.list().get(0);
-                login.setLogin(_newlogin);
+                login.setLogin(_newLogin);
                 session.update(login);
             }
 
@@ -408,13 +408,13 @@ public class Database {
         }
     }
 
-    public void makeTransfer(int payerid, int targetid, long amount, String title, int currencyid) {
+    public void makeTransfer(int payerID, int targetID, long amount, String title, int currencyID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query q = session.createQuery("FROM Account WHERE id=:param");
-            q.setParameter("param", payerid);
+            q.setParameter("param", payerID);
             Account payer = (Account)q.list().get(0);
 
             Long i = payer.getValue();
@@ -422,7 +422,7 @@ public class Database {
             session.update(payer);
 
             q = session.createQuery("from Account where id=:param1");
-            q.setParameter("param1", targetid);
+            q.setParameter("param1", targetID);
             Account target = (Account) q.list().get(0);
             i = target.getValue();
 
@@ -430,13 +430,13 @@ public class Database {
             q.setParameter("param", payer.getCurrencyID());
             q.setParameter("param2", target.getCurrencyID());
             float modifier = ((BigDecimal) q.list().get(0)).floatValue();
-            int new_amount = (int) (amount*modifier);
+            long new_amount = (long) (amount * modifier);
 
-            target.setValue(i+new_amount);
+            target.setValue(i + new_amount);
             session.update(target);
 
             int id = ((BigDecimal) session.createSQLQuery("SELECT MAX(TRANSACTION_ID) FROM TRANSACTIONS").list().get(0)).intValue() + 1;
-            TransactionRecord transactionRecord = new TransactionRecord(id, payerid, targetid, title, amount, currencyid);
+            TransactionRecord transactionRecord = new TransactionRecord(id, payerID, targetID, title, amount, currencyID);
             session.save(transactionRecord);
 
             tx.commit();
@@ -447,13 +447,13 @@ public class Database {
             refresh();
         }
     }
-    public void addAccount(int currencyid, int ownerid) {
+    public void addAccount(int currencyID, int ownerID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             int id = ((BigDecimal) session.createSQLQuery("SELECT MAX(ACCOUNT_ID) FROM ACCOUNTS").list().get(0)).intValue() + 1;
-            Account account = new Account(id, 0L, currencyid, ownerid);
+            Account account = new Account(id, 0L, currencyID, ownerID);
             session.save(account);
 
             tx.commit();
@@ -464,14 +464,14 @@ public class Database {
             refresh();
         }
     }
-    public void addOrUpdateContact(int ownerid, int accountid, String name) {
+    public void addOrUpdateContact(int ownerID, int accountID, String name) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("FROM Contact WHERE ownerid=:ownerid AND targetid=:accountid");
-            query.setParameter("ownerid", ownerid);
-            query.setParameter("accountid", accountid);
+            query.setParameter("ownerid", ownerID);
+            query.setParameter("accountid", accountID);
 
             if (query.list().size() >= 1) {
                 Contact contact = (Contact) query.list().get(0);
@@ -485,7 +485,7 @@ public class Database {
                 if (idbig != null)
                     id = idbig.intValue() + 1;
 
-                Contact account = new Contact(id, ownerid, accountid, name);
+                Contact account = new Contact(id, ownerID, accountID, name);
                 session.save(account);
             }
 
@@ -497,14 +497,14 @@ public class Database {
             refresh();
         }
     }
-    public void addInvestment(int ownerid, String name, long value, double profrate, double yearprofrate, int capperoid, int accountid) {
+    public void addInvestment(int ownerID, String name, long value, double profitRate, double yearProfitRate, int capitalisationPeriod, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             int id = 1;
             Query query = session.createQuery("FROM Account WHERE id=:accountid");
-            query.setParameter("accountid", accountid);
+            query.setParameter("accountid", accountID);
 
             if (query.list().size() >= 1) {
                 Account account = (Account) query.list().get(0);
@@ -516,7 +516,7 @@ public class Database {
                 if (idbig != null)
                     id = idbig.intValue() + 1;
 
-                Investment investment = new Investment(id, name, ownerid, value, profrate, yearprofrate, capperoid, account.getCurrencyID());
+                Investment investment = new Investment(id, name, ownerID, value, profitRate, yearProfitRate, capitalisationPeriod, account.getCurrencyID());
                 session.save(investment);
             }
             tx.commit();
@@ -527,21 +527,21 @@ public class Database {
             refresh();
         }
     }
-    public void addCredit(Integer ownerid, String name, long value, double interest, double commission, long months, int accountid) {
+    public void addCredit(Integer ownerID, String name, long value, double interest, double commission, long months, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             int id = 1;
             Query query = session.createQuery("FROM Account WHERE id=:accountid");
-            query.setParameter("accountid", accountid);
+            query.setParameter("accountid", accountID);
 
             if (query.list().size() >= 1) {
                 Account account = (Account) query.list().get(0);
                 account.setValue(account.getValue()+value);
                 session.update(account);
 
-                int currencyid = account.getCurrencyID();
+                int currencyID = account.getCurrencyID();
 
                 query = session.createSQLQuery("SELECT MAX(CREDIT_ID) FROM CREDITS");
                 BigDecimal idbig = ((BigDecimal) query.list().get(0));
@@ -549,9 +549,9 @@ public class Database {
                     id = idbig.intValue() + 1;
 
                 query = session.createSQLQuery("SELECT add_months(SYSDATE, :param) FROM DUAL");
-                Date enddate = (Date) query.setParameter("param", months).list().get(0);
+                Date endDate = (Date) query.setParameter("param", months).list().get(0);
 
-                Credit credit = new Credit(id, ownerid, name, value, currencyid, interest, commission, enddate);
+                Credit credit = new Credit(id, ownerID, name, value, currencyID, interest, commission, endDate);
                 session.save(credit);
             }
             tx.commit();
@@ -563,7 +563,7 @@ public class Database {
         }
     }
     public void addClient(String _name, String _surname, String _date, String _gender, String _street, String _num, String _city,
-                          String _postcode, String _country_name, String _login, String _password) {
+                          String _postcode, String _countryName, String _login, String _password) {
 
         try {
             Session session = factory.openSession();
@@ -580,7 +580,7 @@ public class Database {
             query.registerStoredProcedureParameter("p_num",           String.class, ParameterMode.IN).setParameter("p_num",           _num         );
             query.registerStoredProcedureParameter("p_city",          String.class, ParameterMode.IN).setParameter("p_city",          _city        );
             query.registerStoredProcedureParameter("p_postcode",      String.class, ParameterMode.IN).setParameter("p_postcode",      _postcode    );
-            query.registerStoredProcedureParameter("p_country_name",  String.class, ParameterMode.IN).setParameter("p_country_name",  _country_name);
+            query.registerStoredProcedureParameter("p_country_name",  String.class, ParameterMode.IN).setParameter("p_country_name",  _countryName);
             query.registerStoredProcedureParameter("p_login",         String.class, ParameterMode.IN).setParameter("p_login",         _login       );
             query.registerStoredProcedureParameter("p_password_hash", String.class, ParameterMode.IN).setParameter("p_password_hash", _password    );
             query.execute();
@@ -594,14 +594,14 @@ public class Database {
         }
     }
 
-    public void removeContact(int ownerid, int accountid) {
+    public void removeContact(int ownerID, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("FROM Contact WHERE ownerid=:ownerid AND targetid=:accountid");
-            query.setParameter("ownerid", ownerid);
-            query.setParameter("accountid", accountid);
+            query.setParameter("ownerid", ownerID);
+            query.setParameter("accountid", accountID);
 
             if (query.list().size() >= 1) {
                 Contact contact = (Contact) query.list().get(0);
@@ -616,20 +616,20 @@ public class Database {
             refresh();
         }
     }
-    public void removeInvestment(int ownerid, int investmentid, int accountid) {
+    public void removeInvestment(int ownerID, int investmentID, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("FROM Investment WHERE ownerid=:ownerid AND id=:investmentid");
-            query.setParameter("ownerid", ownerid);
-            query.setParameter("investmentid", investmentid);
+            query.setParameter("ownerid", ownerID);
+            query.setParameter("investmentid", investmentID);
 
             if (query.list().size() >= 1) {
                 Investment investment = (Investment) query.list().get(0);
 
                 query = session.createQuery("FROM Account WHERE id=:accountid");
-                query.setParameter("accountid", accountid);
+                query.setParameter("accountid", accountID);
 
                 if (query.list().size() >= 1) {
                     Account account = (Account) query.list().get(0);
@@ -647,15 +647,15 @@ public class Database {
             refresh();
         }
     }
-    public void removeAccount(String login, String hashed_password, int accountid) {
+    public void removeAccount(String login, String hashedPassword, int accountID) {
         try {
             Session session = factory.openSession();
             Transaction tx = session.beginTransaction();
 
             Query query = session.createQuery("SELECT a FROM Account a, Login l, Client c WHERE l.id=c.login_id AND l.login=:login AND l.passwordhash=:password AND a.id=:accountid");
             query.setParameter("login", login);
-            query.setParameter("password", hashed_password);
-            query.setParameter("accountid", accountid);
+            query.setParameter("password", hashedPassword);
+            query.setParameter("accountid", accountID);
 
             if (query.list().size() >= 1) {
                 Account account = (Account) query.list().get(0);
@@ -671,20 +671,3 @@ public class Database {
         }
     }
 }
-
-
-/*
-        ░░░░░░░░██████╗░██████╗░░█████╗░░░░░░░░░██╗░░░░░░░░████████╗██████╗░░█████╗░██████╗░██╗░░░░░░░
-        ░░░░░░░██╔════╝░██╔══██╗██╔══██╗░░░░░░░░██║░░░░░░░░╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██║░░░░░░░
-        ░░░░░░░██║░░██╗░██████╔╝███████║░░░░░░░░██║░░░░░░░░░░░██║░░░██████╔╝███████║██████╦╝██║░░░░░░░
-        ░░░░░░░██║░░╚██╗██╔══██╗██╔══██║░░░░░░░░██║░░░░░░░░░░░██║░░░██╔══██╗██╔══██║██╔══██╗██║░░░░░░░
-        ░░░░░░░╚██████╔╝██║░░██║██║░░██║░░░░░░░░██║░░░░░░░░░░░██║░░░██║░░██║██║░░██║██████╦╝██║░░░░░░░
-        ░░░░░░░░╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░░░░░░╚═╝░░░░░░░░░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░╚═╝░░░░░░░
-
-        ███████╗███████╗░██████╗██████╗░░█████╗░██╗░░░░░░░░░░░░░██╗░░██╗░█████╗░███╗░░░███╗██████╗░██╗
-        ╚════██║██╔════╝██╔════╝██╔══██╗██╔══██╗██║░░░░░░░░░░░░░██║░██╔╝██╔══██╗████╗░████║██╔══██╗██║
-        ░░███╔═╝█████╗░░╚█████╗░██████╔╝██║░░██║██║░░░░░░░░░░░░░█████═╝░██║░░██║██╔████╔██║██████╦╝██║
-        ██╔══╝░░██╔══╝░░░╚═══██╗██╔═══╝░██║░░██║██║░░░░░░░░░░░░░██╔═██╗░██║░░██║██║╚██╔╝██║██╔══██╗██║
-        ███████╗███████╗██████╔╝██║░░░░░╚█████╔╝███████╗░░░░░░░░██║░╚██╗╚█████╔╝██║░╚═╝░██║██████╦╝██║
-        ╚══════╝╚══════╝╚═════╝░╚═╝░░░░░░╚════╝░╚══════╝░░░░░░░░╚═╝░░╚═╝░╚════╝░╚═╝░░░░░╚═╝╚═════╝░╚═╝
-*/

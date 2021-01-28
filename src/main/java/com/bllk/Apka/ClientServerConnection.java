@@ -1,7 +1,7 @@
 package com.bllk.Apka;
 
-import com.bllk.Servlet.mapclasses.Account;
-import com.bllk.Servlet.mapclasses.Client;
+import com.bllk.Mapclasses.Account;
+import com.bllk.Mapclasses.Client;
 import org.json.JSONObject;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -10,8 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientServerConnection {
-//    private final String serverAddress = "http://localhost";
-    private final String serverAddress = "http://largehadroncollider.tplinkdns.com";
+    private final String serverAddress = "http://localhost";
+//    private final String serverAddress = "http://178.218.234.129";
     private final String port = "8080";
 
     public boolean checkConnection() {
@@ -21,85 +21,81 @@ public class ClientServerConnection {
 
     public Map<String, String> getCurrencies() {
         JSONObject jsonObject = new JSONObject(getData("currencies"));
-        Map<String, String> map = jsonObject.toMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
-        return map;
+        return jsonObject.toMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
     }
     public Map<String, Integer> getCountries() {
         JSONObject jsonObject = new JSONObject(getData("countries"));
         Map<String, Integer> map = jsonObject.toMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> Integer.parseInt((String) e.getValue())));
         return new TreeMap<>(map);
     }
-    public Map<String, Integer> getContacts(String login, String hashed_password) {
-        JSONObject jsonObject = new JSONObject(getData(String.format("login/contacts?login=%s&password=%s", login, hashed_password)));
+    public Map<String, Integer> getContacts(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/contacts?login=%s&password=%s", login, hashedPassword)));
         Map<String, Integer> map = jsonObject.toMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> Integer.parseInt((String) e.getValue())));
         return new TreeMap<>(map);
     }
-    public Map<Integer, JSONObject> getTransactions(String login, String hashed_password) {
-        JSONObject jsonObject = new JSONObject(getData(String.format("login/transactions?login=%s&password=%s", login, hashed_password)));
+    public Map<Integer, JSONObject> getTransactions(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/transactions?login=%s&password=%s", login, hashedPassword)));
         TreeMap<Integer, JSONObject> map = new TreeMap<>(Collections.reverseOrder());
         for (Map.Entry<String, Object> pair : jsonObject.toMap().entrySet())
             map.put(Integer.parseInt(pair.getKey()), jsonObject.getJSONObject(pair.getKey()));
         return map;
     }
-    public Map<Integer, JSONObject> getInvestments(String login, String hashed_password) {
-        JSONObject jsonObject = new JSONObject(getData(String.format("login/investments?login=%s&password=%s", login, hashed_password)));
+    public Map<Integer, JSONObject> getInvestments(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/investments?login=%s&password=%s", login, hashedPassword)));
         TreeMap<Integer, JSONObject> map = new TreeMap<>();
         for (Map.Entry<String, Object> pair : jsonObject.toMap().entrySet())
             map.put(Integer.parseInt(pair.getKey()), jsonObject.getJSONObject(pair.getKey()));
         return map;
     }
-    public Map<Integer, JSONObject> getCredits(String login, String hashed_password) {
-        JSONObject jsonObject = new JSONObject(getData(String.format("login/credits?login=%s&password=%s", login, hashed_password)));
+    public Map<Integer, JSONObject> getCredits(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/credits?login=%s&password=%s", login, hashedPassword)));
         TreeMap<Integer, JSONObject> map = new TreeMap<>();
         for (Map.Entry<String, Object> pair : jsonObject.toMap().entrySet())
             map.put(Integer.parseInt(pair.getKey()), jsonObject.getJSONObject(pair.getKey()));
         return map;
     }
-    public Map<Integer, JSONObject> getUserAccounts(String login, String hashed_password) {
-        JSONObject jsonObject = new JSONObject(getData(String.format("login/accounts?login=%s&password=%s", login, hashed_password)));
+    public Map<Integer, JSONObject> getUserAccounts(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/accounts?login=%s&password=%s", login, hashedPassword)));
         TreeMap<Integer, JSONObject> map = new TreeMap<>();
         for (Map.Entry<String, Object> pair : jsonObject.toMap().entrySet())
             map.put(Integer.parseInt(pair.getKey()), jsonObject.getJSONObject(pair.getKey()));
         return map;
     }
-    public Client getClient(String login, String hashed_password) {
-        JSONObject json_object = new JSONObject(getData(String.format("login?login=%s&password=%s", login, hashed_password)));
-        return new Client(json_object.getInt("id"), json_object.getString("name"),
-                json_object.getString("surname"), json_object.getString("birthdate"),
-                json_object.getInt("addressid"), json_object.getInt("loginid"),
-                json_object.getString("gender"));
+    public Client getClient(String login, String hashedPassword) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login?login=%s&password=%s", login, hashedPassword)));
+        return new Client(jsonObject.getInt("id"), jsonObject.getString("name"),
+                jsonObject.getString("surname"), jsonObject.getString("birthdate"),
+                jsonObject.getInt("addressid"), jsonObject.getInt("loginid"),
+                jsonObject.getString("gender"));
     }
     public String getSalt(String login) {
-        JSONObject json_object = new JSONObject(getData(String.format("getsalt/%s", login)));
-        return json_object.getString("salt");
+        JSONObject jsonObject = new JSONObject(getData(String.format("getsalt/%s", login)));
+        return jsonObject.getString("salt");
     }
-    public Account getAccount(String login, String hashed_password, int accountid) {
-        JSONObject json_object = new JSONObject(getData(String.format("account/%s?login=%s&password=%s", accountid, login, hashed_password)));
-        return new Account(json_object.getInt("id"), json_object.getLong("value"), json_object.getInt("currency"), json_object.getInt("ownerid"));
+    public Account getAccount(String login, String hashedPassword, int accountID) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("account/%s?login=%s&password=%s", accountID, login, hashedPassword)));
+        return new Account(jsonObject.getInt("id"), jsonObject.getLong("value"), jsonObject.getInt("currency"), jsonObject.getInt("ownerid"));
     }
-    public Account getBasicAccount(int accountid) {
-        JSONObject json_object = new JSONObject(getData(String.format("account/%s", accountid)));
-        return new Account(json_object.getInt("id"), json_object.getInt("currency"));
+    public Account getBasicAccount(int accountID) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("account/%s", accountID)));
+        return new Account(jsonObject.getInt("id"), jsonObject.getInt("currency"));
     }
-    public long getTotalSavings(String login, String hashed_password, int currencyid) {
-        JSONObject json_object = new JSONObject(getData(String.format("login/totalmoney?login=%s&password=%s&currency=%s", login, hashed_password, currencyid)));
-        return json_object.getLong("value");
+    public long getTotalSavings(String login, String hashedPassword, int currencyID) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/totalmoney?login=%s&password=%s&currency=%s", login, hashedPassword, currencyID)));
+        return jsonObject.getLong("value");
     }
-    public long getTotalCredits(String login, String hashed_password, int currencyid) {
-        JSONObject json_object = new JSONObject(getData(String.format("login/totalcredits?login=%s&password=%s&currency=%s", login, hashed_password, currencyid)));
-        return json_object.getLong("value");
+    public long getTotalCredits(String login, String hashedPassword, int currencyID) {
+        JSONObject jsonObject = new JSONObject(getData(String.format("login/totalcredits?login=%s&password=%s&currency=%s", login, hashedPassword, currencyID)));
+        return jsonObject.getLong("value");
     }
 
     public boolean checkLogin(String login) {
-        JSONObject json_object = new JSONObject(getData(String.format("checklogin/%s", login)));
-        String result = json_object.getString("bool");
-        if (result.equals("true"))
-            return true;
-        else
-            return false;
+        JSONObject jsonObject = new JSONObject(getData(String.format("checklogin/%s", login)));
+        String result = jsonObject.getString("bool");
+        return result.equals("true");
     }
-    public boolean checkAccount(int accoundid) {
-        JSONObject json_object = new JSONObject(getData(String.format("account/%d", accoundid)));
+    public boolean checkAccountExistence(int accountID) {
+        JSONObject json_object = new JSONObject(getData(String.format("account/%d", accountID)));
         try {
             int id = json_object.getInt("id");
             return true;
@@ -108,127 +104,128 @@ public class ClientServerConnection {
         }
     }
 
-    public void makeTransfer(String login, String hashed_password, int payer_id, int target_id, String title, long amount, int currencyid) {
-        String post_data = "login=" + login;
-        post_data += "&password=" + hashed_password;
-        post_data += "&payerid=" + payer_id;
-        post_data += "&targetid=" + target_id;
-        post_data += "&title=" + title;
-        post_data += "&amount=" + amount;
-        post_data += "&currencyid=" + currencyid;
+    public void makeTransfer(String login, String hashedPassword, int payerID, int targetID, String title, long amount, int currencyID) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&payerid=" + payerID;
+        postData += "&targetid=" + targetID;
+        postData += "&title=" + title;
+        postData += "&amount=" + amount;
+        postData += "&currencyid=" + currencyID;
 
-        postData("login/transaction", post_data);
+        postData("login/transaction", postData);
     }
-    public void createAccount(String login, String hashed_password, int currencyid) {
-        String post_data = "login=" + login;
-        post_data += "&password=" + hashed_password;
-        post_data += "&currencyid=" + currencyid;
+    public void createAccount(String login, String hashedPassword, int currencyID) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&currencyid=" + currencyID;
 
-        postData("login/createaccount", post_data);
+        postData("login/createaccount", postData);
     }
-    public void createClient(String name, String surname, String date, String gender, String street, String num, String city, String postcode, String country, String login, String hashed_password) {
-        String post_data = "name=" + name;
-        post_data += "&surname=" + surname;
-        post_data += "&date=" + date;
-        post_data += "&gender=" + gender;
-        post_data += "&street=" + street;
-        post_data += "&num=" + num;
-        post_data += "&city=" + city;
-        post_data += "&postcode=" + postcode;
-        post_data += "&country=" + country;
-        post_data += "&login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
+    public void createClient(String name, String surname, String date, String gender, String street, String number,
+                             String city, String postcode, String country, String login, String hashedPassword) {
+        String postData = "name=" + name;
+        postData += "&surname=" + surname;
+        postData += "&date=" + date;
+        postData += "&gender=" + gender;
+        postData += "&street=" + street;
+        postData += "&num=" + number;
+        postData += "&city=" + city;
+        postData += "&postcode=" + postcode;
+        postData += "&country=" + country;
+        postData += "&login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
 
-        postData("createclient", post_data);
+        postData("createclient", postData);
     }
-    public void createInvestment(String login, String hashed_password, String name, long value, double profrate, double yearprofrate, int capperoid, int accountid) {
-        String post_data = "login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-        post_data += "&name=" + name;
-        post_data += "&value=" + value;
-        post_data += "&profrate=" + profrate;
-        post_data += "&yearprofrate=" + yearprofrate;
-        post_data += "&capperoid=" + capperoid;
-        post_data += "&accountid=" + accountid;
+    public void createInvestment(String login, String hashedPassword, String name, long value, double profitRate, double yearProfitRate, int capitalisationPeriodID, int accountID) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&name=" + name;
+        postData += "&value=" + value;
+        postData += "&profrate=" + profitRate;
+        postData += "&yearprofrate=" + yearProfitRate;
+        postData += "&capperiod=" + capitalisationPeriodID;
+        postData += "&accountid=" + accountID;
 
-        postData("login/createinvestment", post_data);
+        postData("login/createinvestment", postData);
     }
-    public void createCredit(String login, String hashed_password, String name, long value, double interest, double commission, int months, int accountid) {
-        String post_data = "login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-        post_data += "&name=" + name;
-        post_data += "&value=" + value;
-        post_data += "&interest=" + interest;
-        post_data += "&commission=" + commission;
-        post_data += "&months=" + months;
-        post_data += "&accountid=" + accountid;
+    public void createCredit(String login, String hashedPassword, String name, long value, double interest, double commission, int months, int accountID) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&name=" + name;
+        postData += "&value=" + value;
+        postData += "&interest=" + interest;
+        postData += "&commission=" + commission;
+        postData += "&months=" + months;
+        postData += "&accountid=" + accountID;
 
-        postData("login/createcredit", post_data);
+        postData("login/createcredit", postData);
     }
-    public void createOrUpdateContact(String login, String hashed_password, String name, int accountid) {
-        String post_data = "name=" + name;
-        post_data += "&accountid=" + accountid;
-        post_data += "&login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
+    public void createOrUpdateContact(String login, String hashedPassword, String name, int accountID) {
+        String postData = "name=" + name;
+        postData += "&accountid=" + accountID;
+        postData += "&login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
 
-        postData("login/createorupdatecontact", post_data);
-    }
-
-    public void updatePassword(String login, String hashed_password) {
-        String post_data = "login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-
-        postData("updatepassword", post_data);
-    }
-    public boolean updateLogin(String login, String hashed_password, String newlogin) {
-        String post_data = "login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-        post_data += "&newlogin=" + newlogin;
-
-        return postData("login/updatelogin", post_data);
-    }
-    public void updateCredit(String login, String hashed_password, int creditid, int accountid) {
-        String post_data = "creditid=" + creditid;
-        post_data += "&accountid=" + accountid;
-        post_data += "&login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-
-        postData("login/payinstallment", post_data);
+        postData("login/createorupdatecontact", postData);
     }
 
-    public void removeContact(String login, String hashed_password, int accountid) {
-        String post_data = "accountid=" + accountid;
-        post_data += "&login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
+    public void updatePassword(String login, String hashedPassword) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
 
-        postData("login/removecontact", post_data);
+        postData("updatepassword", postData);
     }
-    public void removeInvestment(String login, String hashed_password, int investmentid, int accountid) {
-        String post_data = "investmentid=" + investmentid;
-        post_data += "&accountid=" + accountid;
-        post_data += "&login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
+    public boolean updateLogin(String login, String hashedPassword, String newLogin) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&newlogin=" + newLogin;
 
-        postData("login/removeinvestment", post_data);
+        return postData("login/updatelogin", postData);
     }
-    public void removeAccount(String login, String hashed_password, int accountid) {
-        String post_data = "login=" + login;
-        post_data += "&passwordhash=" + hashed_password;
-        post_data += "&accountid=" + accountid;
+    public void updateCredit(String login, String hashedPassword, int creditID, int accountID) {
+        String postData = "creditid=" + creditID;
+        postData += "&accountid=" + accountID;
+        postData += "&login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
 
-        postData("login/removeaccount", post_data);
+        postData("login/payinstallment", postData);
+    }
+
+    public void removeContact(String login, String hashedPassword, int accountID) {
+        String postData = "accountid=" + accountID;
+        postData += "&login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+
+        postData("login/removecontact", postData);
+    }
+    public void removeInvestment(String login, String hashedPassword, int investmentID, int accountID) {
+        String postData = "investmentid=" + investmentID;
+        postData += "&accountid=" + accountID;
+        postData += "&login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+
+        postData("login/removeinvestment", postData);
+    }
+    public void removeAccount(String login, String hashedPassword, int accountID) {
+        String postData = "login=" + login;
+        postData += "&passwordhash=" + hashedPassword;
+        postData += "&accountid=" + accountID;
+
+        postData("login/removeaccount", postData);
     }
 
     public String getData(String url) {
         try {
-            HttpURLConnection http_connection = (HttpURLConnection) new URL(serverAddress + ":" + port + "/" + url).openConnection();
-            System.out.println("GET: " + http_connection.getURL());
-            http_connection.setRequestMethod("GET");
+            HttpURLConnection httpConnection = (HttpURLConnection) new URL(serverAddress + ":" + port + "/" + url).openConnection();
+            System.out.println("GET: " + httpConnection.getURL());
+            httpConnection.setRequestMethod("GET");
 
-            int response_code = http_connection.getResponseCode();
-            if (response_code == 200) {
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode == 200) {
                 StringBuilder response = new StringBuilder();
-                Scanner scanner = new Scanner(http_connection.getInputStream());
+                Scanner scanner = new Scanner(httpConnection.getInputStream());
                 while (scanner.hasNextLine()) {
                     response.append(scanner.nextLine());
                     response.append("\n");
@@ -241,24 +238,24 @@ public class ClientServerConnection {
             return ex.getMessage();
         }
     }
-    public boolean postData(String url, String post_data) {
+    public boolean postData(String url, String postData) {
         try {
-            HttpURLConnection http_connection = (HttpURLConnection) new URL(serverAddress + ":" + port + "/" + url).openConnection();
-            System.out.println("POST: " + http_connection.getURL());
-            http_connection.setRequestMethod("POST");
+            HttpURLConnection httpConnection = (HttpURLConnection) new URL(serverAddress + ":" + port + "/" + url).openConnection();
+            System.out.println("POST: " + httpConnection.getURL());
+            httpConnection.setRequestMethod("POST");
 
-            http_connection.setDoOutput(true);
-            OutputStreamWriter writer = new OutputStreamWriter(http_connection.getOutputStream());
-            writer.write(post_data);
+            httpConnection.setDoOutput(true);
+            OutputStreamWriter writer = new OutputStreamWriter(httpConnection.getOutputStream());
+            writer.write(postData);
             writer.flush();
 
-            int responseCode = http_connection.getResponseCode();
+            int responseCode = httpConnection.getResponseCode();
             if (responseCode == 200) {
                 System.out.println("POST was successful.");
                 return true;
             }
             else
-                throw new Exception("Something went wrong.");
+                throw new Exception("POST failed: " + responseCode);
         }
         catch (Exception ex) {
             System.out.println(ex.getMessage());

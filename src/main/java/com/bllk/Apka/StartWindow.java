@@ -2,12 +2,16 @@ package com.bllk.Apka;
 
 import com.bllk.Apka.resourceHandlers.Colors;
 import com.bllk.Apka.resourceHandlers.Fonts;
-import com.bllk.Servlet.mapclasses.Client;
-import com.bllk.Servlet.mapclasses.Login;
+import com.bllk.Mapclasses.Client;
+import com.bllk.Mapclasses.Login;
+import com.google.common.base.CharMatcher;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
@@ -35,7 +39,6 @@ public class StartWindow {
     private JLabel register_loginErrorLabel, register_passwordErrorLabel, register_repeatPasswordErrorLabel;
     private JLabel register_nameErrorLabel, register_surnameErrorLabel, register_genderErrorLabel;
     private JLabel register_address1ErrorLabel, register_address2ErrorLabel;
-    private JLabel register_mainErrorLabel;
     private JLabel loginLabel, passwordLabel;
     private JLabel register_loginLabel, register_passwordLabel, register_repeatPasswordLabel;
     private JLabel register_nameLabel, register_surnameLabel, register_birthDateLabel, register_genderLabel;
@@ -43,7 +46,6 @@ public class StartWindow {
     private JLabel register_streetLabel, register_numberLabel, register_cityLabel, register_postcodeLabel, register_countryLabel;
     private JLabel register_loginHeaderLabel, register_personalHeaderLabel;
     private JPanel registerTab;
-    private JScrollPane registerScrollPanel;
 
     private String login, password, repeatedPassword;
     private String name, surname, gender;
@@ -52,9 +54,24 @@ public class StartWindow {
     private boolean isDataValid;
 
     static final Integer passwordMinimumLength = 8, passwordMaximumLength = 30;
+    static final Integer loginMinimumLength = 8, loginMaximumLength = 30;
 
     public static void main(String[] args) {
         frame = new JFrame("BLLK");
+        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+        URL imageResource = StartWindow.class.getClassLoader().getResource("pobierz.gif");
+        Image image = defaultToolkit.getImage(imageResource);
+        Taskbar taskbar = Taskbar.getTaskbar();
+
+        try {
+            taskbar.setIconImage(image);
+        } catch (final UnsupportedOperationException e) {
+            System.out.println("The os does not support: 'taskbar.setIconImage'");
+        } catch (final SecurityException e) {
+            System.out.println("There was a security exception for: 'taskbar.setIconImage'");
+        }
+        frame.setIconImage(image);
+
         connection = new ClientServerConnection();
         if (!connection.checkConnection()) {
             JOptionPane.showMessageDialog(
@@ -72,101 +89,8 @@ public class StartWindow {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
-    private void performLogin() {
-        String login = loginField.getText();
-        String password = String.valueOf(passwordField.getPassword());
-        Client client = null;
-        Login log = null;
 
-        if (login.isEmpty() || password.isEmpty()) {
-            login_mainErrorLabel.setVisible(true);
-            login_mainErrorLabel.setText("Pole loginu i hasła nie może być puste.");
-            return;
-        }
 
-        try {
-            login_mainErrorLabel.setVisible(true);
-            login_mainErrorLabel.setText("Logowanie...");
-            String passwordSalt = connection.getSalt(login);
-            String hashedPassword = BCrypt.hashpw(password, passwordSalt);
-
-            client = connection.getClient(login, hashedPassword);
-            log = new Login(client.getID(), login, hashedPassword);
-        }
-        catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            login_mainErrorLabel.setVisible(true);
-            login_mainErrorLabel.setText("Błędny login lub hasło.");
-        }
-
-        frame.setContentPane(new MainUserPage(client, log).currentPanel);
-        loginField.setText("");
-        passwordField.setText("");
-        login_mainErrorLabel.setText("");
-        login_mainErrorLabel.setVisible(false);
-    }
-    private void performRegister() {
-        if (areAllFieldsValid()) {
-            register_mainErrorLabel.setVisible(false);
-            String password_hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-            String date = year + "-" + month + "-" + day;
-            connection.createClient(name, surname, date, gender, street, buildingNumber, city, postcode, country, login, password_hash);
-            register_mainErrorLabel.setText("Konto zostało utworzone. Możesz się zalogować :)");
-            register_mainErrorLabel.setForeground(Color.green);
-        } else {
-            register_mainErrorLabel.setForeground(Color.red);
-            register_mainErrorLabel.setText("Formularz został błędnie uzupełniony.");
-        }
-        register_mainErrorLabel.setVisible(true);
-    }
-    private void changePassword() {
-        JTextField login = new JTextField();
-        JPasswordField newPassword = new JPasswordField(), newPasswordRepeat = new JPasswordField();
-
-        Object[] message = {
-                "Nazwa użytkownika:", login,
-                "Nowe hasło:", newPassword,
-                "Powtórz hasło", newPasswordRepeat
-        };
-
-        int option = JOptionPane.showConfirmDialog(null, message, "Resetowanie hasła", JOptionPane.OK_CANCEL_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
-            String newPasswordString = String.valueOf(newPassword.getPassword());
-            String newPasswordRepeatString = String.valueOf(newPasswordRepeat.getPassword());
-            String typedLogin = login.getText();
-            String hashedPassword;
-            int passwordLength = newPasswordString.length(); //, login_length = typedLogin.length();
-
-            if (typedLogin.isEmpty() || newPasswordString.isEmpty() || newPasswordRepeatString.isEmpty()) {
-                JOptionPane.showMessageDialog(frame,
-                        "Pole loginu i hasła nie może być puste. Proszę spróbować ponownie.",
-                        "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
-            } else {
-                if (!connection.checkLogin(typedLogin)) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Nie istnieje konto o podanym loginie. Proszę spróbować ponownie.",
-                            "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    if (passwordLength < passwordMinimumLength || passwordLength > passwordMaximumLength) {
-                        JOptionPane.showMessageDialog(frame,
-                                "Hasło powinno mieć długość pomiędzy " + passwordMinimumLength + ", a " + passwordMaximumLength + " znaków. Proszę spróbować ponownie.",
-                                "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        if (newPasswordString.equals(newPasswordRepeatString)) {
-                            hashedPassword = BCrypt.hashpw(newPasswordString, BCrypt.gensalt(12));
-                            connection.updatePassword(login.getText(), hashedPassword);
-                            JOptionPane.showMessageDialog(frame, "Zmiana hasła powiodła się.",
-                                    "Sukces", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(frame,
-                                    "Wprowadzone hasła są różne. Proszę spróbować ponownie.",
-                                    "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
-            }
-        }
-    }
     public StartWindow() {
         new Fonts();
         new Colors();
@@ -191,25 +115,22 @@ public class StartWindow {
                 }
             }
         });
-        mainTabbedPane.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (mainTabbedPane.getSelectedIndex() == 1) {
-                    if (register_yearsComboBox.getItemCount() == 0) {
-                        LocalDateTime now = LocalDateTime.now();
-                        year = now.getYear();
-                        month = now.getMonthValue();
-                        day = now.getDayOfMonth();
-                        register_yearsComboBox.removeAllItems();
-                        fillYearComboBox(LocalDateTime.now());
-                    }
-                    if (register_countriesComboBox.getItemCount() == 0) {
-                        fillCountriesComboBox();
-                    }
+        mainTabbedPane.addChangeListener(e -> {
+            if (mainTabbedPane.getSelectedIndex() == 1) {
+                if (register_yearsComboBox.getItemCount() == 0) {
+                    LocalDateTime now = LocalDateTime.now();
+                    year = now.getYear();
+                    month = now.getMonthValue();
+                    day = now.getDayOfMonth();
+                    register_yearsComboBox.removeAllItems();
+                    fillYearComboBox(LocalDateTime.now());
+                }
+                if (register_countriesComboBox.getItemCount() == 0) {
+                    fillCountriesComboBox();
                 }
             }
         });
-        register_yearsComboBox.addActionListener(e -> {
+                register_yearsComboBox.addActionListener(e -> {
             year = (Integer) register_yearsComboBox.getSelectedItem();
             if (year == null)
                 year = LocalDateTime.now().getYear();
@@ -287,6 +208,102 @@ public class StartWindow {
         });
         register_button.addActionListener(e -> performRegister());
         forgotPasswordButton.addActionListener(e -> changePassword());
+    }
+
+    private void performLogin() {
+        String login = loginField.getText();
+        String password = String.valueOf(passwordField.getPassword());
+        Client client = null;
+        Login log = null;
+
+        if (login.isEmpty() || password.isEmpty()) {
+            login_mainErrorLabel.setVisible(true);
+            login_mainErrorLabel.setText("Pole loginu i hasła nie może być puste.");
+            return;
+        }
+
+        try {
+            login_mainErrorLabel.setVisible(true);
+            login_mainErrorLabel.setText("Logowanie...");
+            String passwordSalt = connection.getSalt(login);
+            String hashedPassword = BCrypt.hashpw(password, passwordSalt);
+
+            client = connection.getClient(login, hashedPassword);
+            log = new Login(client.getID(), login, hashedPassword);
+        }
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            login_mainErrorLabel.setVisible(true);
+            login_mainErrorLabel.setText("Błędny login lub hasło.");
+        }
+
+        frame.setContentPane(new MainUserPage(client, log).currentPanel);
+        loginField.setText("");
+        passwordField.setText("");
+        login_mainErrorLabel.setText("");
+        login_mainErrorLabel.setVisible(false);
+    }
+    private void performRegister() {
+        if (areAllFieldsValid()) {
+            String password_hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+            String date = year + "-" + month + "-" + day;
+            connection.createClient(name, surname, date, gender, street, buildingNumber, city, postcode, country, login, password_hash);
+            JOptionPane.showMessageDialog(null,
+                    "Założono konto.\nMożesz się zalogować :D",
+                    "Operacja powiodła się", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Formularz został błędnie uzupełniony.",
+                    "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void changePassword() {
+        JTextField login = new JTextField();
+        JPasswordField newPassword = new JPasswordField(), newPasswordRepeat = new JPasswordField();
+
+        Object[] message = {
+                "Nazwa użytkownika:", login,
+                "Nowe hasło:", newPassword,
+                "Powtórz hasło", newPasswordRepeat
+        };
+
+        int option = JOptionPane.showConfirmDialog(null, message, "Resetowanie hasła", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String newPasswordString = String.valueOf(newPassword.getPassword());
+            String newPasswordRepeatString = String.valueOf(newPasswordRepeat.getPassword());
+            String typedLogin = login.getText();
+            String hashedPassword;
+            int passwordLength = newPasswordString.length(); //, login_length = typedLogin.length();
+
+            if (typedLogin.isEmpty() || newPasswordString.isEmpty() || newPasswordRepeatString.isEmpty()) {
+                JOptionPane.showMessageDialog(frame,
+                        "Pole loginu i hasła nie może być puste. Proszę spróbować ponownie.",
+                        "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+            } else {
+                if (!connection.checkLogin(typedLogin)) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Nie istnieje konto o podanym loginie. Proszę spróbować ponownie.",
+                            "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    if (passwordLength < passwordMinimumLength || passwordLength > passwordMaximumLength) {
+                        JOptionPane.showMessageDialog(frame,
+                                "Hasło powinno mieć długość pomiędzy " + passwordMinimumLength + ", a " + passwordMaximumLength + " znaków. Proszę spróbować ponownie.",
+                                "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        if (newPasswordString.equals(newPasswordRepeatString)) {
+                            hashedPassword = BCrypt.hashpw(newPasswordString, BCrypt.gensalt(12));
+                            connection.updatePassword(login.getText(), hashedPassword);
+                            JOptionPane.showMessageDialog(frame, "Zmiana hasła powiodła się.",
+                                    "Sukces", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(frame,
+                                    "Wprowadzone hasła są różne. Proszę spróbować ponownie.",
+                                    "Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            }
+        }
     }
     private void updateFontsAndColors() {
         Font standardFont = Fonts.getStandardFont();
@@ -378,6 +395,7 @@ public class StartWindow {
         for (Map.Entry<String,Integer> entry : connection.getCountries().entrySet())
             register_countriesComboBox.addItem(entry.getKey());
     }
+
     private void makeErrorLabelsInvisible() {
         login_mainErrorLabel.setVisible(false);
         register_loginErrorLabel.setVisible(false);
@@ -388,10 +406,9 @@ public class StartWindow {
         register_genderErrorLabel.setVisible(false);
         register_address1ErrorLabel.setVisible(false);
         register_address2ErrorLabel.setVisible(false);
-        register_mainErrorLabel.setVisible(false);
     }
     private boolean areAllFieldsValid() {
-        login = getDataFromField(register_login, register_loginErrorLabel, 8, 30);
+        login = getLoginFromField(register_login, register_loginErrorLabel);
         password = getPasswordFromField(register_password, register_passwordErrorLabel, 8, 30);
         repeatedPassword = getPasswordFromField(register_repeatPassword, register_repeatPasswordErrorLabel, 8, 30);
         name = getDataFromField(register_name, register_nameErrorLabel, 0, 60);
@@ -420,6 +437,22 @@ public class StartWindow {
         isValid = validateDataFromField(labelToModify, input_length, minLength, maxLength, "Pole");
 
         if (isValid) {
+            isDataValid = true;
+            return inputData;
+        } else {
+            isDataValid = false;
+            return null;
+        }
+    }
+    private String getLoginFromField(JTextField loginField, JLabel labelToModify) {
+        String inputData = loginField.getText();
+        int inputLength = inputData.length();
+        boolean is_valid;
+        boolean isAscii = CharMatcher.ascii().matchesAllOf(inputData);
+
+        is_valid = validateDataFromField(labelToModify, inputLength, StartWindow.loginMinimumLength, StartWindow.loginMaximumLength, "Login");
+
+        if (is_valid && isAscii) {
             isDataValid = true;
             return inputData;
         } else {
@@ -467,7 +500,11 @@ public class StartWindow {
             isDataValid = false;
             return;
         }
-        if (connection.checkLogin(login)) {
+        if (!CharMatcher.ascii().matchesAllOf(login)) {
+            isDataValid = false;
+            register_loginErrorLabel.setText("Login może składać się tylko ze znaków ASCII.");
+            register_loginErrorLabel.setVisible(true);
+        } else if (connection.checkLogin(login)) {
             isDataValid = false;
             register_loginErrorLabel.setText("Podany login już istnieje w bazie.");
             register_loginErrorLabel.setVisible(true);

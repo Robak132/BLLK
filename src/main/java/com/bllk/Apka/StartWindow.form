@@ -164,7 +164,7 @@
             </properties>
             <border type="empty"/>
             <children>
-              <grid id="9e519" binding="registerTab" layout-manager="GridLayoutManager" row-count="33" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="9e519" binding="registerTab" layout-manager="GridLayoutManager" row-count="32" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints/>
                 <properties>
@@ -199,7 +199,7 @@
                   </component>
                   <hspacer id="fa998">
                     <constraints>
-                      <grid row="0" column="7" row-span="33" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="7" row-span="32" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </hspacer>
                   <component id="68653" class="javax.swing.JLabel" binding="register_loginLabel">
@@ -229,7 +229,7 @@
                   </vspacer>
                   <vspacer id="ca1f6">
                     <constraints>
-                      <grid row="32" column="1" row-span="1" col-span="6" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="31" column="1" row-span="1" col-span="6" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </vspacer>
                   <component id="b15f8" class="javax.swing.JPasswordField" binding="register_repeatPassword">
@@ -351,7 +351,7 @@
                   </component>
                   <hspacer id="7c369">
                     <constraints>
-                      <grid row="0" column="0" row-span="33" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="32" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </hspacer>
                   <component id="b8333" class="javax.swing.JLabel" binding="register_yearLabel">
@@ -552,18 +552,6 @@
                     <properties>
                       <font style="1"/>
                       <foreground color="-65536"/>
-                      <text value="Komunikat o błędzie"/>
-                    </properties>
-                  </component>
-                  <component id="563aa" class="javax.swing.JLabel" binding="register_mainErrorLabel">
-                    <constraints>
-                      <grid row="31" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <font style="1"/>
-                      <foreground color="-65536"/>
-                      <horizontalAlignment value="0"/>
-                      <horizontalTextPosition value="0"/>
                       <text value="Komunikat o błędzie"/>
                     </properties>
                   </component>

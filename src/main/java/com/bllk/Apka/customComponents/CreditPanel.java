@@ -8,8 +8,6 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -27,7 +25,6 @@ public class CreditPanel extends JPanel {
         String currencyShortcut = MainUserPage.getCurrencies().get(credit.getString("currencyid"));
 
         JLabel valueLabel = new JLabel(String.format("%.2f", credit.getDouble("value") / 100) + " " + currencyShortcut, SwingConstants.CENTER);
-        //valueLabel.setFont(new Font(valueLabel.getFont() + "", Font.PLAIN, valueLabel.getFont().getSize() * 2));
 
         JLabel interestLabel        = new JLabel("Oprocentowanie: " + credit.getDouble("interest")   * 100 + "%");
         JLabel commissionLabel      = new JLabel("Prowizja: "       + credit.getDouble("commission") * 100 + "%");
@@ -59,40 +56,29 @@ public class CreditPanel extends JPanel {
         c.weighty = 1;
         c.gridwidth = 1;
 
-        List<JLabel> list_of_labels = Arrays.asList(remainingLabel, interestLabel, monthlyLabel, commissionLabel, monthsRemainingLabel, RRSOLabel,
-                dateCreatedLabel, new JLabel(), dateEndedLabel, new JLabel());
+        List<JLabel> listOfLabels = Arrays.asList(remainingLabel, interestLabel, monthlyLabel, commissionLabel,
+                monthsRemainingLabel, RRSOLabel, dateCreatedLabel, new JLabel(), dateEndedLabel, new JLabel());
 
         c.gridy = 0;
         c.gridx = 0;
         c.gridwidth = GridBagConstraints.REMAINDER;
-        //c.gridheight = 2;
         this.add(valueLabel, c);
-        //c.gridheight = 1;
-        //c.gridy++;
-        //c.insets = new Insets(0, 1, 0, 1);
 
-        for (int i = 0; i < list_of_labels.size();) {
+        for (int i = 0; i < listOfLabels.size();) {
             c.gridwidth = 3;
             c.gridx = 0;
             c.gridy++;
-            this.add(list_of_labels.get(i++), c);
+            this.add(listOfLabels.get(i++), c);
             c.gridwidth = 2; // GridBagConstraints.REMAINDER;
             c.gridx = 3;
-            this.add(list_of_labels.get(i++), c);
+            this.add(listOfLabels.get(i++), c);
         }
 
         c.gridwidth = 1;
         c.gridy++;
         c.gridx = 0;
-        // this.add(new JLabel(""), c);
-        // c.gridx = 1;
-        // c.gridwidth = 3;
-        c.gridwidth = GridBagConstraints.REMAINDER;;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         this.add(payInstallmentButton, c);
-        // c.gridx = 4;
-        // c.gridwidth = 1;
-        // this.add(new JLabel(""), c);
-
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
@@ -121,7 +107,6 @@ public class CreditPanel extends JPanel {
                         Colors.getBrightTextColor()
                 ));
             }
-
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 setBorder(BorderFactory.createTitledBorder(
                         BorderFactory.createLineBorder(Colors.getOrange(), 3, true),
@@ -137,13 +122,15 @@ public class CreditPanel extends JPanel {
 
     int payInstallmentDialog() {
         JComboBox<String> accountBox = new JComboBox<>();
-        List<Integer> accounts_to_select = new ArrayList<>();
-        List<Long> values_to_select = new ArrayList<>();
+        List<Integer> accountsToSelect = new ArrayList<>();
+        List<Long> valuesToSelect = new ArrayList<>();
         for (Map.Entry<Integer, JSONObject> account : MainUserPage.getAccounts().entrySet()) {
             if (account.getValue().getInt("currencyid") == credit.getInt("currencyid")) {
-                accountBox.addItem(String.format("%s (%.2f %s)", page.getContactIfPossible(account.getKey()), account.getValue().getDouble("value") / 100, MainUserPage.getCurrencies().get(account.getValue().getString("currencyid"))));
-                accounts_to_select.add(account.getKey());
-                values_to_select.add(account.getValue().getLong("value"));
+                accountBox.addItem(String.format("%s (%.2f %s)", page.getContactIfPossible(account.getKey()),
+                        account.getValue().getDouble("value") / 100,
+                        MainUserPage.getCurrencies().get(account.getValue().getString("currencyid"))));
+                accountsToSelect.add(account.getKey());
+                valuesToSelect.add(account.getValue().getLong("value"));
             }
         }
 
@@ -153,8 +140,8 @@ public class CreditPanel extends JPanel {
 
         int option = JOptionPane.showConfirmDialog(null, message, "Spłać ratę kredytu", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            if (values_to_select.get(accountBox.getSelectedIndex()) >= credit.getLong("monthly"))
-                return accounts_to_select.get(accountBox.getSelectedIndex());
+            if (valuesToSelect.get(accountBox.getSelectedIndex()) >= credit.getLong("monthly"))
+                return accountsToSelect.get(accountBox.getSelectedIndex());
             else
                 JOptionPane.showMessageDialog(null,"Nie posiadasz wystarczająco pieniędzy.","Wystąpił błąd", JOptionPane.ERROR_MESSAGE);
         }

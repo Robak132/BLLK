@@ -1,6 +1,4 @@
-package com.bllk.Servlet.mapclasses;
-
-import org.hibernate.annotations.GenericGenerator;
+package com.bllk.Mapclasses;
 
 import javax.persistence.*;
 

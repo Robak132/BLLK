@@ -28,7 +28,7 @@ public class InvestmentPanel extends JPanel {
         JLabel currencyLabel = new JLabel(MainUserPage.getCurrencies().get(inv.getString("currencyid")));
         JLabel profitLabel = new JLabel(inv.getString("profit"));
         JLabel yearProfitLabel = new JLabel(inv.getString("yearprofit"));
-        JLabel capPeriodLabel = new JLabel(inv.getString("capperiod"));
+        JLabel capitalisationPeriodLabel = new JLabel(inv.getString("capperiod"));
         JLabel dateCreatedLabel = new JLabel(inv.getString("datecreated"));
 
         JButton closeInvestmentButton = new JButton("Zamknij lokatę");
@@ -38,7 +38,7 @@ public class InvestmentPanel extends JPanel {
         JLabel textCapPeriodLabel = new JLabel("Okres kapitalizacji:");
         JLabel textDateCreatedLabel = new JLabel("Data utworzenia:");
 
-        for (JLabel jLabel : Arrays.asList(yearProfitLabel, capPeriodLabel, dateCreatedLabel,
+        for (JLabel jLabel : Arrays.asList(yearProfitLabel, capitalisationPeriodLabel, dateCreatedLabel,
                 valueLabel, currencyLabel, profitLabel,
                 textProfitLabel, textYearProfitLabel, textCapPeriodLabel, textDateCreatedLabel)) {
             jLabel.setForeground(Colors.getBrightTextColor());
@@ -89,7 +89,7 @@ public class InvestmentPanel extends JPanel {
         c.gridx = 0;
         this.add(textCapPeriodLabel, c);
         c.gridx = 1;
-        this.add(capPeriodLabel, c);
+        this.add(capitalisationPeriodLabel, c);
 
         c.gridy = 4;
         c.gridx = 0;
@@ -152,13 +152,13 @@ public class InvestmentPanel extends JPanel {
 
     int removeInvestmentDialog() {
         JComboBox<String> accountBox = new JComboBox<>();
-        List<Integer> accounts_to_select = new ArrayList<>();
+        List<Integer> accountsToSelect = new ArrayList<>();
         for (Map.Entry<Integer, JSONObject> account : MainUserPage.getAccounts().entrySet()) {
             if (account.getValue().getInt("currencyid") == inv.getInt("currencyid")) {
                 accountBox.addItem(String.format("%s (%.2f %s)", page.getContactIfPossible(account.getKey()),
                         account.getValue().getDouble("value") / 100,
                         MainUserPage.getCurrencies().get(account.getValue().getString("currencyid"))));
-                accounts_to_select.add(account.getKey());
+                accountsToSelect.add(account.getKey());
             }
         }
 
@@ -169,7 +169,7 @@ public class InvestmentPanel extends JPanel {
         int option = JOptionPane.showConfirmDialog(null, message,
                 "Nowa lokata",JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            return accounts_to_select.get(accountBox.getSelectedIndex());
+            return accountsToSelect.get(accountBox.getSelectedIndex());
         }
         return -1;
     }

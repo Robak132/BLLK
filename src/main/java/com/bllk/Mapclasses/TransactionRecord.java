@@ -1,7 +1,4 @@
-package com.bllk.Servlet.mapclasses;
-
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenericGenerator;
+package com.bllk.Mapclasses;
 
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
@@ -14,32 +11,32 @@ public class TransactionRecord {
     @Column(name = "TRANSACTION_ID")
     private Integer id;
     @Column(name = "SENDER_ID")
-    private Integer senderid;
+    private Integer senderID;
     @Column(name = "RECEIVER_ID")
-    private Integer receiverid;
+    private Integer receiverID;
     @Column(name = "TITLE")
     private String title;
     @Column(name = "VALUE")
     private Long value;
     @Column(name = "CURRENCY_ID")
-    private Integer currencyid;
+    private Integer currencyID;
     @Column(name = "TRANSACTION_DATE")
     private Date date;
 
-    public TransactionRecord(Integer senderid, Integer receiverid, String title, Long value, Integer currencyid) {
-        this.senderid = senderid;
-        this.receiverid = receiverid;
+    public TransactionRecord(Integer senderID, Integer receiverID, String title, Long value, Integer currencyID) {
+        this.senderID = senderID;
+        this.receiverID = receiverID;
         this.title = title;
         this.value = value;
-        this.currencyid = currencyid;
+        this.currencyID = currencyID;
     }
-    public TransactionRecord(Integer id, Integer senderid, Integer receiverid, String title, Long value, Integer currencyid) {
+    public TransactionRecord(Integer id, Integer senderID, Integer receiverID, String title, Long value, Integer currencyID) {
         this.id = id;
-        this.senderid = senderid;
-        this.receiverid = receiverid;
+        this.senderID = senderID;
+        this.receiverID = receiverID;
         this.title = title;
         this.value = value;
-        this.currencyid = currencyid;
+        this.currencyID = currencyID;
     }
     public TransactionRecord() {
     }
@@ -51,16 +48,16 @@ public class TransactionRecord {
         this.id = id;
     }
     public Integer getSenderID() {
-        return senderid;
+        return senderID;
     }
     public void setSenderID(Integer senderid) {
-        this.senderid = senderid;
+        this.senderID = senderid;
     }
     public Integer getReceiverID() {
-        return receiverid;
+        return receiverID;
     }
     public void setReceiverID(Integer receiverid) {
-        this.receiverid = receiverid;
+        this.receiverID = receiverid;
     }
     public String getTitle() {
         return title;
@@ -75,10 +72,10 @@ public class TransactionRecord {
         this.value = value;
     }
     public Integer getCurrencyID() {
-        return currencyid;
+        return currencyID;
     }
-    public void setCurrencyID(Integer currencyid) {
-        this.currencyid = currencyid;
+    public void setCurrencyID(Integer _currencyID) {
+        this.currencyID = _currencyID;
     }
     public Date getDate() {
         return date;

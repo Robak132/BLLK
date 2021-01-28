@@ -1,4 +1,4 @@
-package com.bllk.Servlet.mapclasses;
+package com.bllk.Mapclasses;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
