@@ -10,8 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientServerConnection {
-    private final String serverAddress = "http://localhost";
-//    private final String serverAddress = "http://178.218.234.129";
+//    private final String serverAddress = "http://localhost";
+    private final String serverAddress = "http://178.218.234.129";
     private final String port = "8080";
 
     public boolean checkConnection() {

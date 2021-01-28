@@ -34,21 +34,13 @@
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>ojdbc10</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/ojdbc10.jar</systemPath>
-    </dependency>
-  </dependencies>
   <distributionManagement>
     <repository>
       <id>internal.repo</id>
