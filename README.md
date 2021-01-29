@@ -188,4 +188,15 @@ public void addAccount(int currencyID, int ownerID) {
 # Opis sposobu testowania systemu
 ### Testy jednostkowe
 
+Skupiliśmy się na testowaniu serwera, ponieważ to właśnie serwer odpowiada za to, aby zapobiec wprowadzaniu do bazy błędnych danych. Sprawdzane są głównie te zmienne, które są wprowadzane przez użytkownika w aplikacji klienckiej ręcznie, a nie poprzez np. slidery czy listę wartości do wyboru, gdzie to programista ma całkowitą kontrolę nad tym, jakie wartości mogą zostać wybrane.
+
+Można wyróżnić dwa główne rodzaje testów:
+- testowanie wartości tekstowych przesyłanych do bazy
+- testowanie wartości liczbowych przysyłanych do bazy
+
+W przypadku wartości tekstowych sprawdzamy, czy napis nie jest pusty i nie przekracza maksymalnej długości. W przypadku loginu sprawdzamy również, czy nie zawiera znaków spoza zakresu znaków ASCII.
+
+Jeśli chodzi o sprawdzanie wartości liczbowych, weryfikowane jest, czy przesyłana wartość jest liczbą (konieczność ta wynika z faktu przesyłania danych jako JSON) oraz, czy należy do właściwego jej zakresu.
+
+Przy wykonywaniu testów oczekujemy, że funkcje bazodanowe zwrócą kod błędu SC_BAD_REQUEST, jeśli oczekujemy błędu przy wykonywaniu testu, lub SC_SERVICE_UNAVAILABLE, jeśli oczekujemy, że test wykona się poprawnie. Takie podejście jest umotywowane tym, aby podczas testu nie łączyć się z bazą, a jedynie sprawdzać, czy warunki nałożone na wszystkie zmienne są spełnione. Wszystkie testowane funkcje kończą się próbą połączenia z bazą danych, więc w przypadku niepowodzenia zwrócą taki kod błędu.
 <writing>
